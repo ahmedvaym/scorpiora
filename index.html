@@ -5,15 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fresh Juice Bar | Organic, Raw & Fresh</title>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+    
     <style>
-      /* Custom font for the header */
+        /* Custom font for the header */
         @font-face {
             font-family: 'SameeAvasThaana';
             src: url('fonts/Samee_Avas_Thaana.ttf');
@@ -37,7 +39,6 @@
         .splash-content {
             text-align: center;
             color: white;
-            font-family: sans-serif;
         }
         
         .splash-logo {
@@ -45,12 +46,11 @@
             font-weight: 800;
             margin-bottom: 20px;
             animation: pulse 1.5s infinite;
-            font-family: sans-serif;
+            font-family: 'SameeAvasThaana', sans-serif;
         }
         
         .splash-logo span {
             color: #f9fff9;
-            font-family: sans-serif;
         }
         
         .splash-tagline {
@@ -75,18 +75,6 @@
             width: 0%;
             background: white;
             animation: loading 2s ease-in-out forwards;
-        }
-         .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            font-family: 'SameeAvasThaana', sans-serif;
-        }
-        
-        .logo span {
-            color: var(--secondary);
-            font-family: 'SameeAvasThaana', sans-serif;
         }
         
         @keyframes pulse {
@@ -122,7 +110,6 @@
             }
         }
         
-       
         * {
             margin: 0;
             padding: 0;
@@ -567,70 +554,55 @@
             font-size: 16px;
         }
 
-        /* Juice Bar Logo Animation Styles */
-        .logo-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #4a9e5b; /* Fresh green background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            animation: fadeOut 1s ease-in-out 2s forwards;
-        }
-        
-        .logo-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 8px;
+        /* Google Maps Styles */
+        .location-section {
             background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .location-section h2 {
+            margin-bottom: 15px;
+            color: #4a9e5b;
+        }
+        
+        .map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .location-info {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            animation: pulse 1.5s infinite alternate;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 20px;
         }
         
-        .logo-icon {
-            font-size: 50px;
-            color: #4a9e5b; /* Fresh green color */
+        .location-details {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .location-details h3 {
             margin-bottom: 10px;
+            color: #4a9e5b;
         }
         
-        .logo-text {
-            color: #4a9e5b; /* Fresh green color */
-            font-family: Arial, sans-serif;
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: center;
+        .location-details p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
         }
         
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-            }
-            100% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
-            }
+        .location-details i {
+            margin-right: 10px;
+            color: #4a9e5b;
+            width: 20px;
         }
         
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -670,8 +642,8 @@
         }
         
         .category-grid, .product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            
+            grid-template-columns: repeat(1, 1fr);
             gap: 10px;
             padding: 0 5px;
         }
@@ -692,7 +664,7 @@
         
         .category-item img, .product-card img {
             width: 100%;
-            height: 120px;
+            height: 200px;
             object-fit: cover;
         }
         
@@ -1002,7 +974,7 @@
         
         .booking-option {
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 4px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
@@ -1314,6 +1286,7 @@
         
         .catalog-list {
             list-style: none;
+            padding: 0;
         }
         
         .catalog-list li {
@@ -1495,6 +1468,10 @@
             .redeem-options {
                 grid-template-columns: repeat(4, 1fr);
             }
+            
+            .location-info {
+                flex-direction: row;
+            }
         }
         
         /* Mobile landscape and tablet portrait */
@@ -1545,6 +1522,10 @@
             .redeem-options {
                 grid-template-columns: 1fr;
             }
+            
+            .location-info {
+                flex-direction: column;
+            }
         }
         
         /* Small mobile devices */
@@ -1581,24 +1562,28 @@
 </head>
 <body>
     
-    <!-- Juice Bar Logo Animation Container -->
-    <div class="logo-animation" id="logoAnimation">
-        <div class="logo-circle" id="logoCircle">
-            <i class="fas fa-glass-cheers logo-icon"></i>
-            <div class="logo-text">FRESH JUICE </div>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">rAnOk qCerqf<span></span></div>
+            <p class="splash-tagline">Raw, Organic, and of course, Fresh!</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
         </div>
     </div>
 
     <header>
-        <div class="container header-container">
- 
+        <div class="container">
             <!-- Mobile menu button -->
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
             
             <div class="top-bar">
-               
+                <div class="logo">
+                    <h4>FRESH JUICE BAR</h4>
+                </div>
                 
                 <div class="user-actions">
                     <a href="#" id="cartLink"><i class="fas fa-shopping-cart"></i> 
@@ -1616,6 +1601,7 @@
                     <li><a href="#" class="nav-link" data-page="booking">Bookings</a></li>
                     <li><a href="#" class="nav-link" data-page="order-status">Order Status</a></li>
                     <li><a href="#" class="nav-link" data-page="points">Redeem Points</a></li>
+                    <li><a href="#" class="nav-link" data-page="location">Location</a></li>
                 </ul>
             </nav>
         </div>
@@ -1637,7 +1623,7 @@
     <!-- Mobile Navigation Menu -->
     <div class="mobile-nav" id="mobileNav">
         <div class="mobile-nav-header">
-            <a href="#" class="logo"> <span>arOwipOkqsiw</span></a>
+            <h4>FRESH JUICE BAR</h4>
             <button class="close-menu" id="closeMenu">
                 <i class="fas fa-times"></i>
             </button>
@@ -1648,6 +1634,7 @@
             <li><a href="#" class="mobile-nav-link" data-page="booking"><i class="fas fa-calendar-alt"></i> Bookings</a></li>
             <li><a href="#" class="mobile-nav-link" data-page="order-status"><i class="fas fa-truck"></i> Order Status</a></li>
             <li><a href="#" class="mobile-nav-link" data-page="points"><i class="fas fa-coins"></i> Redeem Points</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="location"><i class="fas fa-map-marker-alt"></i> Location</a></li>
             <!-- Dynamic categories will be added here -->
             <div id="mobileDynamicCategories"></div>
         </ul>
@@ -1664,10 +1651,23 @@
         <div class="container">
             <div class="footer-sections">
                 <div class="footer-section">
-                    
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Delivery Policy</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                    </ul>
                 </div>
                 <div class="footer-section">
-                   
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
                 <div class="footer-section">
                     <h3>Follow Us</h3>
                     <div class="social-icons">
@@ -1773,8 +1773,7 @@
         const navLinks = document.querySelectorAll('.nav-link');
         const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
         const currentYear = document.getElementById('currentYear');
-        const logoAnimation = document.getElementById('logoAnimation');
-        const logoCircle = document.getElementById('logoCircle');
+        const splashScreen = document.getElementById('splash-screen');
         const adminLink = document.getElementById('adminLink');
         const mobileDynamicCategories = document.getElementById('mobileDynamicCategories');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -1791,14 +1790,11 @@
             // Set current year in footer
             currentYear.textContent = new Date().getFullYear();
 
-            // Add click event to logo animation
-            logoCircle.addEventListener('click', () => {
-                // Immediately fade out and hide the animation when clicked
-                logoAnimation.style.animation = 'fadeOut 0.5s ease-in-out forwards';
-                
-                // Load products and page after animation completes
+            // Hide splash screen after 3 seconds
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
                 setTimeout(() => {
-                    logoAnimation.style.display = 'none';
+                    splashScreen.style.display = 'none';
                     loadCatalogName();
                     loadCategories();
                     loadProducts();
@@ -1806,24 +1802,8 @@
                     loadDiscount();
                     loadShippingSettings();
                 }, 500);
-            });
-
-            // Auto-hide the animation after 3 seconds if not clicked
-            setTimeout(() => {
-                if (logoAnimation.style.display !== 'none') {
-                    logoAnimation.style.animation = 'fadeOut 0.5s ease-in-out forwards';
-                    setTimeout(() => {
-                        logoAnimation.style.display = 'none';
-                        loadCatalogName();
-                        loadCategories();
-                        loadProducts();
-                        loadSmoothies();
-                        loadDiscount();
-                        loadShippingSettings();
-                    }, 500);
-                }
             }, 3000);
-            
+
             // Add event listeners for navigation
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -2268,6 +2248,9 @@
                     break;
                 case 'points':
                     renderPointsPage();
+                    break;
+                case 'location':
+                    renderLocationPage();
                     break;
                 case 'pending-review':
                     renderPendingReviewPage();
@@ -3641,7 +3624,138 @@
             });
         }
 
-               // Render order status page
+        // Render location page with Google Maps
+        function renderLocationPage() {
+            mainContent.innerHTML = `
+                <div class="location-section">
+                    <h2>Our Location</h2>
+                    <p style="margin-bottom: 15px;">Visit us at our store for the freshest juices and smoothies!</p>
+                    
+                    <div class="map-container" id="map"></div>
+                    
+                    <div class="location-info">
+                        <div class="location-details">
+                            <h3>Store Information</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> Hithadhoo, Addu City, Maldives</p>
+                            <p><i class="fas fa-phone"></i> +960 123-4567</p>
+                            <p><i class="fas fa-envelope"></i> info@freshjuicebar.com</p>
+                            <p><i class="fas fa-clock"></i> Open Daily: 8:00 AM - 10:00 PM</p>
+                            
+                            <h3 style="margin-top: 20px;">Delivery Areas</h3>
+                            <p>We deliver to all islands in Addu Atoll:</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>S. Hithadhoo</li>
+                                <li>S. Maradhoo</li>
+                                <li>S. Maradhoo-Feydhoo</li>
+                                <li>S. Feydhoo</li>
+                                <li>S. Hulhudhoo</li>
+                                <li>S. Meedhoo</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="location-details">
+                            <h3>Get Directions</h3>
+                            <p>Enter your location to get directions to our store:</p>
+                            <div style="margin-top: 15px;">
+                                <input type="text" id="directionsFrom" placeholder="Enter your location" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;">
+                                <button class="btn" id="getDirectionsBtn">Get Directions</button>
+                            </div>
+                            <div id="directionsPanel" style="margin-top: 15px; padding: 15px; background-color: #f9f9f9; border-radius: 4px; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize map
+            initMap();
+            
+            // Get directions button event
+            document.getElementById('getDirectionsBtn').addEventListener('click', () => {
+                const from = document.getElementById('directionsFrom').value;
+                if (from) {
+                    calculateAndDisplayRoute(from);
+                } else {
+                    alert('Please enter your location');
+                }
+            });
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            // Default location (Addu City, Maldives)
+            const location = { lat: -0.6300, lng: 73.1000 };
+            
+            // Create map
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: location,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+            
+            // Add marker
+            const marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                title: 'Fresh Juice Bar'
+            });
+            
+            // Add info window
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="padding: 10px;">
+                        <h3 style="margin-bottom: 5px; color: #4a9e5b;">Fresh Juice Bar</h3>
+                        <p style="margin: 5px 0;">Hithadhoo, Addu City, Maldives</p>
+                        <p style="margin: 5px 0;">Open: 8:00 AM - 10:00 PM</p>
+                    </div>
+                `
+            });
+            
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+            
+            // Store map and marker for later use
+            state.map = map;
+            state.marker = marker;
+        }
+
+        // Calculate and display route
+        function calculateAndDisplayRoute(from) {
+            if (!state.directionsService) {
+                state.directionsService = new google.maps.DirectionsService();
+                state.directionsRenderer = new google.maps.DirectionsRenderer();
+                state.directionsRenderer.setMap(state.map);
+            }
+            
+            state.directionsService.route(
+                {
+                    origin: from,
+                    destination: { lat: -0.6300, lng: 73.1000 },
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                (response, status) => {
+                    if (status === 'OK') {
+                        state.directionsRenderer.setDirections(response);
+                        
+                        // Display route instructions
+                        const directionsPanel = document.getElementById('directionsPanel');
+                        directionsPanel.style.display = 'block';
+                        directionsPanel.innerHTML = '<h4>Route Instructions:</h4>';
+                        
+                        const route = response.routes[0];
+                        for (let i = 0; i < route.legs[0].steps.length; i++) {
+                            directionsPanel.innerHTML += `
+                                <p>${i+1}. ${route.legs[0].steps[i].instructions}</p>
+                            `;
+                        }
+                    } else {
+                        alert('Directions request failed: ' + status);
+                    }
+                }
+            );
+        }
+
+        // Render order status page
         function renderOrderStatusPage() {
             mainContent.innerHTML = `
                 <h1>Order Status Tracker</h1>
@@ -3650,35 +3764,38 @@
                 <div class="order-status">
                     <div class="status-tracker-form">
                         <input type="text" id="orderReference" placeholder="Enter your order reference number">
-                        <button class="btn" id="trackOrderBtn">Track Order</button>
+                                               <button class="btn" id="trackOrderBtn">Track Order</button>
                     </div>
                     
                     <div id="orderStatusResult" style="display: none;">
-                        <h3>Order Status</h3>
-                        <div id="orderStatusContent"></div>
-                    </div>
-                    
-                    <div id="statusTimeline" class="status-timeline" style="display: none;">
-                        <div class="status-step">
-                            <div class="status-icon" id="statusPayment"><i class="fas fa-money-bill-wave"></i></div>
-                            <div class="status-label">Payment Review</div>
+                        <div class="status-timeline">
+                            <div class="status-step">
+                                <div class="status-icon active" id="statusOrdered">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="status-label">Ordered</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusPreparing">
+                                    <i class="fas fa-blender"></i>
+                                </div>
+                                <div class="status-label">Preparing</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusOnTheWay">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div class="status-label">On the Way</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusDelivered">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="status-label">Delivered</div>
+                            </div>
                         </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="statusAccepted"><i class="fas fa-check"></i></div>
-                            <div class="status-label">Order Accepted</div>
-                        </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="statusPreparing"><i class="fas fa-blender"></i></div>
-                            <div class="status-label">Preparing</div>
-                        </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="statusReady"><i class="fas fa-box"></i></div>
-                            <div class="status-label">Ready</div>
-                        </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="statusDelivered"><i class="fas fa-truck"></i></div>
-                            <div class="status-label">Delivered</div>
-                        </div>
+                        
+                        <div id="orderDetails" style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px;"></div>
                     </div>
                 </div>
             `;
@@ -3701,34 +3818,40 @@
             database.ref('orders').orderByChild('orderNumber').equalTo(orderRef).once('value')
                 .then(snapshot => {
                     const orderStatusResult = document.getElementById('orderStatusResult');
-                    const statusTimeline = document.getElementById('statusTimeline');
+                    const orderDetails = document.getElementById('orderDetails');
                     
                     if (snapshot.exists()) {
                         const orderData = Object.values(snapshot.val())[0];
                         
-                        // Show the result section
+                        // Show order status result
                         orderStatusResult.style.display = 'block';
-                        statusTimeline.style.display = 'flex';
                         
-                        // Update order status content
-                        document.getElementById('orderStatusContent').innerHTML = `
-                            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                                <p><strong>Order Reference:</strong> ${orderData.orderNumber}</p>
-                                <p><strong>Order Date:</strong> ${orderData.date}</p>
-                                <p><strong>Total Amount:</strong> MVR${orderData.total.toFixed(2)}</p>
-                                <p><strong>Payment Method:</strong> ${orderData.paymentMethod === 'bank_transfer' ? 'Bank Transfer' : 'Cash on Delivery'}</p>
-                                <p><strong>Status:</strong> <span style="color: ${getStatusColor(orderData.status)}">${orderData.status}</span></p>
-                            </div>
+                        // Update status timeline
+                        updateStatusIcons(orderData.status);
+                        
+                        // Display order details
+                        orderDetails.innerHTML = `
+                            <h3>Order Details: ${orderRef}</h3>
+                            <p><strong>Order Date:</strong> ${orderData.date}</p>
+                            <p><strong>Status:</strong> ${orderData.status}</p>
+                            <p><strong>Total Amount:</strong> MVR${orderData.total.toFixed(2)}</p>
+                            <p><strong>Shipping Address:</strong> ${orderData.shippingInfo.address}, ${orderData.shippingInfo.island}</p>
+                            <p><strong>Contact:</strong> ${orderData.shippingInfo.phone}</p>
+                            
+                            <h4 style="margin-top: 15px;">Items:</h4>
+                            ${orderData.items.map(item => `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>${item.product.name} x ${item.quantity}</span>
+                                    <span>MVR${(item.product.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
                         `;
-                        
-                        // Update timeline based on status
-                        updateStatusTimeline(orderData.status);
                     } else {
                         orderStatusResult.style.display = 'block';
-                        statusTimeline.style.display = 'none';
-                        
-                        document.getElementById('orderStatusContent').innerHTML = `
-                            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        orderDetails.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #ff6b6b;"></i>
+                                <h3>Order Not Found</h3>
                                 <p>No order found with reference number: ${orderRef}</p>
                                 <p>Please check your reference number and try again.</p>
                             </div>
@@ -3740,56 +3863,27 @@
                 });
         }
 
-        // Get color for order status
-        function getStatusColor(status) {
-            const statusColors = {
-                'pending': '#FF9800',
-                'payment_review': '#FF9800',
-                'accepted': '#2196F3',
-                'preparing': '#2196F3',
-                'ready': '#4CAF50',
-                'delivered': '#4CAF50',
-                'cancelled': '#F44336'
-            };
-            
-            return statusColors[status] || '#666';
-        }
-
-        // Update status timeline
-        function updateStatusTimeline(status) {
-            // Reset all status icons
-            document.querySelectorAll('.status-icon').forEach(icon => {
-                icon.classList.remove('active');
-            });
+        // Update status icons based on order status
+        function updateStatusIcons(status) {
+            // Reset all icons
+            document.getElementById('statusOrdered').classList.remove('active');
+            document.getElementById('statusPreparing').classList.remove('active');
+            document.getElementById('statusOnTheWay').classList.remove('active');
+            document.getElementById('statusDelivered').classList.remove('active');
             
             // Activate icons based on status
-            switch(status) {
-                case 'pending':
-                case 'payment_review':
-                    document.getElementById('statusPayment').classList.add('active');
-                    break;
-                case 'accepted':
-                    document.getElementById('statusPayment').classList.add('active');
-                    document.getElementById('statusAccepted').classList.add('active');
-                    break;
-                case 'preparing':
-                    document.getElementById('statusPayment').classList.add('active');
-                    document.getElementById('statusAccepted').classList.add('active');
-                    document.getElementById('statusPreparing').classList.add('active');
-                    break;
-                case 'ready':
-                    document.getElementById('statusPayment').classList.add('active');
-                    document.getElementById('statusAccepted').classList.add('active');
-                    document.getElementById('statusPreparing').classList.add('active');
-                    document.getElementById('statusReady').classList.add('active');
-                    break;
-                case 'delivered':
-                    document.getElementById('statusPayment').classList.add('active');
-                    document.getElementById('statusAccepted').classList.add('active');
-                    document.getElementById('statusPreparing').classList.add('active');
-                    document.getElementById('statusReady').classList.add('active');
-                    document.getElementById('statusDelivered').classList.add('active');
-                    break;
+            document.getElementById('statusOrdered').classList.add('active');
+            
+            if (status === 'preparing' || status === 'on-the-way' || status === 'delivered') {
+                document.getElementById('statusPreparing').classList.add('active');
+            }
+            
+            if (status === 'on-the-way' || status === 'delivered') {
+                document.getElementById('statusOnTheWay').classList.add('active');
+            }
+            
+            if (status === 'delivered') {
+                document.getElementById('statusDelivered').classList.add('active');
             }
         }
 
@@ -3803,11 +3897,13 @@
             mainContent.innerHTML = `
                 <div class="pending-review">
                     <i class="fas fa-clock"></i>
-                    <h1>Order Submitted for Review</h1>
-                    <p>Your order #${state.orderDetails.orderNumber} has been received and is pending payment verification.</p>
-                    <p>We will notify you once your payment has been verified and your order is being processed.</p>
+                    <h1>Order Pending Review</h1>
+                    <p>Your order <strong>${state.orderDetails.orderNumber}</strong> has been received and is pending payment verification.</p>
+                    <p>We will process your order once we verify your bank transfer.</p>
+                    <p>You will receive a confirmation email/SMS once your order is approved.</p>
+                    
                     <div class="order-details">
-                        <h3>Order Details</h3>
+                        <h3>Order Summary</h3>
                         <div class="order-details-row">
                             <span class="order-details-label">Order Number:</span>
                             <span>${state.orderDetails.orderNumber}</span>
@@ -3825,12 +3921,12 @@
                             <span>Bank Transfer</span>
                         </div>
                     </div>
-                    <a href="#" class="btn nav-link" data-page="home">Continue Shopping</a>
+                    
+                    <a href="#" class="btn" id="backToHomeBtn">Back to Home</a>
                 </div>
             `;
             
-            // Add event listener to continue shopping button
-            document.querySelector('.nav-link').addEventListener('click', (e) => {
+            document.getElementById('backToHomeBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 loadPage('home');
             });
@@ -3847,7 +3943,8 @@
                 <div class="order-confirmation">
                     <i class="fas fa-check-circle"></i>
                     <h1>Order Confirmed!</h1>
-                    <p>Thank you for your order. Your order #${state.orderDetails.orderNumber} has been confirmed.</p>
+                    <p>Thank you for your order. Your order has been confirmed and will be processed shortly.</p>
+                    
                     <div class="order-details">
                         <h3>Order Details</h3>
                         <div class="order-details-row">
@@ -3866,19 +3963,64 @@
                             <span class="order-details-label">Payment Method:</span>
                             <span>Cash on Delivery/Pickup</span>
                         </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Estimated Delivery:</span>
+                            <span>30-45 minutes</span>
+                        </div>
                     </div>
-                    <a href="#" class="btn nav-link" data-page="home">Continue Shopping</a>
+                    
+                    <p>You will receive an SMS with order tracking details shortly.</p>
+                    
+                    <a href="#" class="btn" id="trackOrderBtnConfirm">Track Your Order</a>
+                    <a href="#" class="btn btn-secondary" id="backToHomeBtnConfirm">Back to Home</a>
                 </div>
             `;
             
-            // Add event listener to continue shopping button
-            document.querySelector('.nav-link').addEventListener('click', (e) => {
+            document.getElementById('trackOrderBtnConfirm').addEventListener('click', (e) => {
+                e.preventDefault();
+                state.currentSearch = state.orderDetails.orderNumber;
+                loadPage('order-status');
+            });
+            
+            document.getElementById('backToHomeBtnConfirm').addEventListener('click', (e) => {
                 e.preventDefault();
                 loadPage('home');
             });
         }
 
-        // Add to cart function
+        // Update active navigation link
+        function updateActiveNavLink() {
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to current page link
+            document.querySelectorAll(`.nav-link[data-page="${state.currentPage}"]`).forEach(link => {
+                link.classList.add('active');
+            });
+            
+            // Update page title
+            const pageTitles = {
+                'home': 'Home',
+                'products': 'Our Products',
+                'product': 'Product Details',
+                'smoothies': 'Smoothies',
+                'smoothie-detail': 'Smoothie Details',
+                'cart': 'Shopping Cart',
+                'checkout': 'Checkout',
+                'booking': 'Bookings',
+                'order-status': 'Order Status',
+                'points': 'Redeem Points',
+                'location': 'Location',
+                'pending-review': 'Order Pending',
+                'order-confirmation': 'Order Confirmed'
+            };
+            
+            document.title = `${pageTitles[state.currentPage] || 'Fresh Juice Bar'} | ${state.catalogName}`;
+        }
+
+        // Add product to cart
         function addToCart(productId, quantity = 1) {
             if (state.cart[productId]) {
                 state.cart[productId] += quantity;
@@ -3890,7 +4032,7 @@
             updateCartCount();
         }
 
-        // Remove from cart function
+        // Remove product from cart
         function removeFromCart(productId) {
             delete state.cart[productId];
             saveCart();
@@ -3903,21 +4045,16 @@
             localStorage.setItem('cart', JSON.stringify(state.cart));
         }
 
-        // Update cart count display
+        // Update cart count badge
         function updateCartCount() {
             const count = Object.values(state.cart).reduce((a, b) => a + b, 0);
             cartCount.textContent = count;
-            cartCount.style.display = count > 0 ? 'flex' : 'none';
-        }
-
-        // Update active navigation link
-        function updateActiveNavLink() {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.dataset.page === state.currentPage) {
-                    link.classList.add('active');
-                }
-            });
+            
+            if (count > 0) {
+                cartCount.style.display = 'flex';
+            } else {
+                cartCount.style.display = 'none';
+            }
         }
 
         // Initialize the app when DOM is loaded

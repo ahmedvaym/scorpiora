@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -446,6 +445,53 @@
             margin-bottom: 5px;
         }
         
+        .bank-account-number {
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .bank-account-number:hover {
+            color: #4a9e5b;
+        }
+        
+        .bank-account-number::after {
+            content: 'Click to copy';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .bank-account-number:hover::after {
+            opacity: 1;
+        }
+        
+        .copy-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4a9e5b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .copy-notification.show {
+            opacity: 1;
+        }
+        
         .upload-area {
             border: 2px dashed #ccc;
             padding: 15px;
@@ -844,6 +890,22 @@
             padding-top: 15px;
             border-top: 1px solid #2d4b32;
             font-size: 14px;
+        }
+        
+        .developer-credit {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .developer-credit a {
+            color: #f8a31c;
+            text-decoration: none;
+        }
+        
+        .developer-credit a:hover {
+            text-decoration: underline;
         }
         
         .cart-items {
@@ -1400,6 +1462,50 @@
             color: #f8a31c;
         }
         
+        /* Product Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        
+        .modal.active {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 20px auto;
+            border-radius: 8px;
+            max-width: 800px;
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
         /* Desktop styles */
         @media (min-width: 768px) {
             .container {
@@ -1527,6 +1633,11 @@
             .location-info {
                 flex-direction: column;
             }
+            
+            .modal-content {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
         }
         
         /* Small mobile devices */
@@ -1571,6 +1682,21 @@
             <div class="loading-bar">
                 <div class="loading-progress"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Copy Notification -->
+    <div class="copy-notification" id="copyNotification">
+        Account number copied to clipboard!
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content" id="modalContent">
+            <button class="close-modal" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <!-- Modal content will be loaded here -->
         </div>
     </div>
 
@@ -1650,18 +1776,40 @@
 
     <footer>
         <div class="container">
-            
+            <div class="footer-sections">
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Delivery Policy</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
                 <div class="footer-section">
                     <h3>Follow Us</h3>
                     <div class="social-icons">
-        
-                        <a href="https://www.instagram.com/scorpiora_cs?igsh=MXBjem9zN3diaXF0ag=="><i class="fab fa-instagram"></i></a>
-                        
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
                     </div>
                 </div>
             </div>
             <div class="copyright">
                 <p>&copy; <span id="currentYear"></span> Fresh Juice Bar. All rights reserved.</p>
+                <div class="developer-credit">
+                    Developed by <a href="#" target="_blank">Your Web Developer</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -1766,6 +1914,10 @@
         const catalogMenu = document.getElementById('catalogMenu');
         const closeCatalog = document.getElementById('closeCatalog');
         const catalogList = document.getElementById('catalogList');
+        const productModal = document.getElementById('productModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const copyNotification = document.getElementById('copyNotification');
 
         // Initialize the app
         function init() {
@@ -1846,8 +1998,36 @@
             closeCatalog.addEventListener('click', closeCatalogMenu);
             overlay.addEventListener('click', closeCatalogMenu);
             
+            // Modal functionality
+            closeModal.addEventListener('click', closeProductModal);
+            productModal.addEventListener('click', (e) => {
+                if (e.target === productModal) {
+                    closeProductModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeProductModal();
+                }
+            });
+            
             // Initialize cart count
             updateCartCount();
+        }
+
+        // Open product modal
+        function openProductModal(content) {
+            modalContent.innerHTML = content;
+            productModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close product modal
+        function closeProductModal() {
+            productModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
 
         // Open catalog menu
@@ -2329,7 +2509,7 @@
                             featuredProducts.map(product => {
                                 const discountedPrice = applyDiscount(product.price);
                                 return `
-                                <div class="product-card">
+                                <div class="product-card" data-id="${product.id}">
                                     <img src="${product.image}" alt="${product.name}">
                                     <div class="product-overlay">
                                         <div class="product-actions-overlay">
@@ -2367,7 +2547,7 @@
             document.querySelectorAll('.product-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('add-to-cart-btn')) {
-                        const productId = card.querySelector('.add-to-cart-btn').dataset.id;
+                        const productId = card.dataset.id;
                         viewProductDetail(productId);
                     }
                 });
@@ -2413,7 +2593,7 @@
                         state.smoothies.map(smoothie => {
                             const discountedPrice = applyDiscount(smoothie.price);
                             return `
-                            <div class="product-card">
+                            <div class="product-card" data-id="${smoothie.id}">
                                 <img src="${smoothie.image}" alt="${smoothie.name}">
                                 <div class="product-overlay">
                                     <div class="product-actions-overlay">
@@ -2438,7 +2618,7 @@
             document.querySelectorAll('.product-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('quick-add-btn')) {
-                        const smoothieId = card.querySelector('.quick-add-btn').dataset.id;
+                        const smoothieId = card.dataset.id;
                         viewSmoothieDetail(smoothieId);
                     }
                 });
@@ -2590,7 +2770,7 @@
                             filteredProducts.map(product => {
                                 const discountedPrice = applyDiscount(product.price);
                                 return `
-                                <div class="product-card">
+                                <div class="product-card" data-id="${product.id}">
                                     <img src="${product.image}" alt="${product.name}">
                                     <div class="product-overlay">
                                         <div class="product-actions-overlay">
@@ -2616,7 +2796,7 @@
             document.querySelectorAll('.product-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('add-to-cart-btn')) {
-                        const productId = card.querySelector('.add-to-cart-btn').dataset.id;
+                        const productId = card.dataset.id;
                         viewProductDetail(productId);
                     }
                 });
@@ -2637,21 +2817,9 @@
             const product = state.products.find(p => p.id === productId);
             if (!product) return;
             
-            state.currentProduct = product;
-            loadPage('product');
-        }
-
-        // Render product detail page
-        function renderProductDetailPage() {
-            if (!state.currentProduct) {
-                loadPage('products');
-                return;
-            }
-            
-            const product = state.currentProduct;
             const discountedPrice = applyDiscount(product.price);
             
-            mainContent.innerHTML = `
+            const modalHTML = `
                 <div class="product-detail">
                     <div class="product-image">
                         <img src="${product.image}" alt="${product.name}">
@@ -2699,11 +2867,14 @@
                 </div>
             `;
             
+            openProductModal(modalHTML);
+            
             document.getElementById('addToCartForm')?.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const quantity = parseInt(document.getElementById('quantity').value) || 1;
                 addToCart(product.id, quantity);
                 alert(`${product.name} has been added to your cart!`);
+                closeProductModal();
             });
         }
 
@@ -2951,7 +3122,7 @@
                                     <div class="bank-info">
                                        <p><strong>Bank Name:</strong> Bank Of Maldives</p>
                                         <p><strong>Account Name:</strong> SCORPIORA</p>
-                                        <p><strong>Account Number:</strong> 7770000203219</p>
+                                        <p><strong>Account Number:</strong> <span class="bank-account-number" id="accountNumber">7770000203219</span></p>
                                         <p><strong>Reference:</strong> ${orderNumber}</p>
                                     </div>
                                     <p style="margin: 10px 0;">Please upload your payment slip after completing the bank transfer.</p>
@@ -3062,6 +3233,22 @@
                     };
                     reader.readAsDataURL(file);
                 }
+            });
+            
+            // Account number copy functionality
+            const accountNumber = document.getElementById('accountNumber');
+            accountNumber.addEventListener('click', () => {
+                navigator.clipboard.writeText(accountNumber.textContent)
+                    .then(() => {
+                        copyNotification.textContent = 'Account number copied to clipboard!';
+                        copyNotification.classList.add('show');
+                        setTimeout(() => {
+                            copyNotification.classList.remove('show');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
             });
             
             document.getElementById('placeOrderBtn').addEventListener('click', () => {
@@ -3613,7 +3800,9 @@
                     <h2>Our Location</h2>
                     <p style="margin-bottom: 15px;">Visit us at our store for the freshest juices and smoothies!</p>
                     
-                    <div class="map-container" id="map"></div>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1012.6683292569796!2d73.09563745811272!3d-0.6125645494069025!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x24b59fdbf46f56d5%3A0xa326174f7d67ca9f!2sAddu%20City%20Square!5e1!3m2!1sen!2smv!4v1756636690037!5m2!1sen!2smv" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
                     
                     <div class="location-info">
                         <div class="location-details">
@@ -3648,93 +3837,15 @@
                 </div>
             `;
             
-            // Initialize map
-            initMap();
-            
             // Get directions button event
             document.getElementById('getDirectionsBtn').addEventListener('click', () => {
                 const from = document.getElementById('directionsFrom').value;
                 if (from) {
-                    calculateAndDisplayRoute(from);
+                    window.open(`https://www.google.com/maps/dir/${encodeURIComponent(from)}/Addu+City+Square,+Hithadhoo,+Maldives/`, '_blank');
                 } else {
                     alert('Please enter your location');
                 }
             });
-        }
-
-        // Initialize Google Map
-        function initMap() {
-            // Default location (Addu City, Maldives)
-            const location = { lat: -0.6300, lng: 73.1000 };
-            
-            // Create map
-            const map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 15,
-                center: location,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
-            
-            // Add marker
-            const marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                title: 'Fresh Juice Bar'
-            });
-            
-            // Add info window
-            const infoWindow = new google.maps.InfoWindow({
-                content: `
-                    <div style="padding: 10px;">
-                        <h3 style="margin-bottom: 5px; color: #4a9e5b;">Fresh Juice Bar</h3>
-                        <p style="margin: 5px 0;">Hithadhoo, Addu City, Maldives</p>
-                        <p style="margin: 5px 0;">Open: 8:00 AM - 10:00 PM</p>
-                    </div>
-                `
-            });
-            
-            marker.addListener('click', () => {
-                infoWindow.open(map, marker);
-            });
-            
-            // Store map and marker for later use
-            state.map = map;
-            state.marker = marker;
-        }
-
-        // Calculate and display route
-        function calculateAndDisplayRoute(from) {
-            if (!state.directionsService) {
-                state.directionsService = new google.maps.DirectionsService();
-                state.directionsRenderer = new google.maps.DirectionsRenderer();
-                state.directionsRenderer.setMap(state.map);
-            }
-            
-            state.directionsService.route(
-                {
-                    origin: from,
-                    destination: { lat: -0.6300, lng: 73.1000 },
-                    travelMode: google.maps.TravelMode.DRIVING
-                },
-                (response, status) => {
-                    if (status === 'OK') {
-                        state.directionsRenderer.setDirections(response);
-                        
-                        // Display route instructions
-                        const directionsPanel = document.getElementById('directionsPanel');
-                        directionsPanel.style.display = 'block';
-                        directionsPanel.innerHTML = '<h4>Route Instructions:</h4>';
-                        
-                        const route = response.routes[0];
-                        for (let i = 0; i < route.legs[0].steps.length; i++) {
-                            directionsPanel.innerHTML += `
-                                <p>${i+1}. ${route.legs[0].steps[i].instructions}</p>
-                            `;
-                        }
-                    } else {
-                        alert('Directions request failed: ' + status);
-                    }
-                }
-            );
         }
 
         // Render order status page
@@ -3746,7 +3857,7 @@
                 <div class="order-status">
                     <div class="status-tracker-form">
                         <input type="text" id="orderReference" placeholder="Enter your order reference number">
-                                               <button class="btn" id="trackOrderBtn">Track Order</button>
+                        <button class="btn" id="trackOrderBtn">Track Order</button>
                     </div>
                     
                     <div id="orderStatusResult" style="display: none;">

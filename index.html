@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +10,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    
-    <!-- Google Maps API -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
     
     <style>
         /* Custom font for the header */
@@ -317,11 +315,10 @@
             margin: 15px 0;
             position: relative;
             width: 100%;
-            height: 300%;
+            height: 300px;
             overflow: hidden;
             border-radius: 8px;
         }
-        
         
         .slideshow {
             position: relative;
@@ -689,7 +686,7 @@
         }
         
         .category-grid, .product-grid {
-            
+            display: grid;
             grid-template-columns: repeat(1, 1fr);
             gap: 10px;
             padding: 0 5px;
@@ -2324,7 +2321,7 @@
                     name: 'Immunity Booster',
                     price: 89,
                     original_price: 99,
-                    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                   image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
                     description: 'Vitamin C packed shot with orange, lemon, ginger, and echinacea',
                     category: 'Boosters',
                     featured: false,
@@ -3112,6 +3109,7 @@
                                         <p>Click to upload payment slip</p>
                                         <p style="font-size: 12px; color: #666;">(JPEG, PNG or PDF, max 5MB)</p>
                                         <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                                        <div class<input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
                                         <div class="file-name" id="fileName"></div>
                                     </div>
                                 </div>
@@ -3311,7 +3309,7 @@
                 });
         }
 
-        // Render points page
+         // Render points page
         function renderPointsPage() {
             mainContent.innerHTML = `
                 <div class="points-section">
@@ -3343,6 +3341,7 @@
                     </div>
                 </div>
             `;
+            
             
             // Check points button event
             document.getElementById('checkPointsBtn').addEventListener('click', () => {
@@ -3562,17 +3561,27 @@
                         <form id="karaokeBookingForm">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Date</label>
+                                    <label>Full Name *</label>
+                                    <input type="text" id="karaokeName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="karaokePhone" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date *</label>
                                     <input type="date" id="karaokeDate" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Time</label>
+                                    <label>Time *</label>
                                     <input type="time" id="karaokeTime" required>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Duration (hours)</label>
+                                    <label>Duration (hours) *</label>
                                     <select id="karaokeDuration" required>
                                         <option value="1">1 hour</option>
                                         <option value="2">2 hours</option>
@@ -3581,7 +3590,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Number of People</label>
+                                    <label>Number of People *</label>
                                     <input type="number" id="karaokePeople" min="1" max="15" required>
                                 </div>
                             </div>
@@ -3598,17 +3607,27 @@
                         <form id="eventBookingForm">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Date</label>
+                                    <label>Full Name *</label>
+                                    <input type="text" id="eventName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="eventPhone" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date *</label>
                                     <input type="date" id="eventDate" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Time</label>
+                                    <label>Time *</label>
                                     <input type="time" id="eventTime" required>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Duration (hours)</label>
+                                    <label>Duration (hours) *</label>
                                     <select id="eventDuration" required>
                                         <option value="2">2 hours</option>
                                         <option value="3">3 hours</option>
@@ -3617,7 +3636,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Number of Guests</label>
+                                    <label>Number of Guests *</label>
                                     <input type="number" id="eventGuests" min="1" required>
                                 </div>
                             </div>
@@ -3683,6 +3702,8 @@
                 
                 const bookingDetails = {
                     type: 'karaoke',
+                    name: document.getElementById('karaokeName').value,
+                    phone: document.getElementById('karaokePhone').value,
                     date: document.getElementById('karaokeDate').value,
                     time: document.getElementById('karaokeTime').value,
                     duration: document.getElementById('karaokeDuration').value,
@@ -3698,6 +3719,8 @@
                 // Show booking summary
                 document.getElementById('bookingSummaryContent').innerHTML = `
                     <p><strong>Type:</strong> Karaoke Booking</p>
+                    <p><strong>Name:</strong> ${bookingDetails.name}</p>
+                    <p><strong>Phone:</strong> <a href="tel:${bookingDetails.phone}">${bookingDetails.phone}</a></p>
                     <p><strong>Date:</strong> ${bookingDetails.date}</p>
                     <p><strong>Time:</strong> ${bookingDetails.time}</p>
                     <p><strong>Duration:</strong> ${bookingDetails.duration} hours</p>
@@ -3715,6 +3738,8 @@
                 
                 const bookingDetails = {
                     type: state.bookingType,
+                    name: document.getElementById('eventName').value,
+                    phone: document.getElementById('eventPhone').value,
                     date: document.getElementById('eventDate').value,
                     time: document.getElementById('eventTime').value,
                     duration: document.getElementById('eventDuration').value,
@@ -3731,6 +3756,8 @@
                 // Show booking summary
                 document.getElementById('bookingSummaryContent').innerHTML = `
                     <p><strong>Type:</strong> ${bookingDetails.eventType}</p>
+                    <p><strong>Name:</strong> ${bookingDetails.name}</p>
+                    <p><strong>Phone:</strong> <a href="tel:${bookingDetails.phone}">${bookingDetails.phone}</a></p>
                     <p><strong>Date:</strong> ${bookingDetails.date}</p>
                     <p><strong>Time:</strong> ${bookingDetails.time}</p>
                     <p><strong>Duration:</strong> ${bookingDetails.duration} hours</p>
@@ -3788,8 +3815,8 @@
                         <div class="location-details">
                             <h3>Store Information</h3>
                             <p><i class="fas fa-map-marker-alt"></i> Hithadhoo, Addu City, Maldives</p>
-                            <p><i class="fas fa-phone"></i> +960 7933305</p>
-                            <p><i class="fas fa-envelope"></i> scorpiora.co@gmail.com</p>
+                            <p><i class="fas fa-phone"></i> <a href="tel:+9607933305">+960 7933305</a></p>
+                            <p><i class="fas fa-envelope"></i> <a href="mailto:scorpiora.co@gmail.com">scorpiora.co@gmail.com</a></p>
                             <p><i class="fas fa-clock"></i> Open Daily: 8:00 AM - 10:00 PM</p>
                             
                             <h3 style="margin-top: 20px;">Delivery Areas</h3>

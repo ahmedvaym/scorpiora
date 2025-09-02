@@ -1,0 +1,4164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scorpiora</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    
+    <style>
+        /* Custom font for the header */
+        @font-face {
+            font-family: 'SameeAvasThaana';
+            src: url('fonts/Samee_Avas_Thaana.ttf');
+        }
+        
+        /* Splash Screen Styles */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a9e5b 0%, #f8a31c 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .splash-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .splash-logo {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+            font-family: 'SameeAvasThaana', sans-serif;
+        }
+        
+        .splash-logo span {
+            color: #f9fff9;
+        }
+        
+        .splash-tagline {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+            animation-delay: 0.5s;
+        }
+        
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 auto;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: white;
+            animation: loading 2s ease-in-out forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* Responsive adjustments for splash screen */
+        @media (max-width: 768px) {
+            .splash-logo {
+                font-size: 3.5rem;
+            }
+            
+            .splash-tagline {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .splash-logo {
+                font-size: 2.8rem;
+            }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f9fff9;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+        
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: center; /* Center the logo */
+            align-items: center;
+            padding: 15px 0;
+            position: relative;
+        }
+        
+        .logo {
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .logo h4 {
+            color: #4a9e5b; /* Fresh green color */
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-actions a {
+            color: #333;
+            margin: 0 5px;
+            font-size: 18px;
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #f8a31c; /* Orange accent color */
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none; /* Hidden by default */
+        }
+        
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #4a9e5b;
+            cursor: pointer;
+            z-index: 101;
+        }
+        
+        /* Mobile navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .mobile-nav.active {
+            left: 0;
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .mobile-nav-header h4 {
+            color: #4a9e5b;
+            font-size: 20px;
+        }
+        
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .mobile-nav ul {
+            list-style: none;
+        }
+        
+        .mobile-nav ul li {
+            margin-bottom: 10px;
+        }
+        
+        .mobile-nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .mobile-nav ul li a:hover {
+            background-color: #f0f9f1;
+            color: #4a9e5b;
+        }
+        
+        .mobile-nav ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            list-style: none;
+            padding: 10px 0;
+        }
+        
+        nav ul li {
+            margin: 5px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 5px 10px;
+            white-space: nowrap;
+        }
+        
+        nav ul li a:hover {
+            color: #4a9e5b; /* Fresh green color */
+        }
+        
+        /* Banner Styles with Slideshow */
+        .banner {
+            margin: 15px 0;
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .slideshow {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .banner-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .banner-text {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            max-width: 80%;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.8s ease 0.3s;
+        }
+        
+        .slide.active .banner-text {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .banner-text h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        
+        .banner-text p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        /* Payment method styles */
+        .payment-method {
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        
+        .payment-method.selected {
+            border-color: #4a9e5b; /* Fresh green color */
+            background-color: #f0f9f1;
+        }
+        
+        .payment-method label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .payment-method input[type="radio"] {
+            margin-right: 8px;
+        }
+        
+        .payment-method-details {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .payment-method.selected .payment-method-details {
+            display: block;
+        }
+        
+        .payment-logo {
+            width: 80px;
+            height: 40px;
+            margin-left: 10px;
+            object-fit: contain;
+            background-color: white;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .bank-info {
+            background-color: #f0f0f0;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+        
+        .bank-info p {
+            margin-bottom: 5px;
+        }
+        
+        .bank-account-number {
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .bank-account-number:hover {
+            color: #4a9e5b;
+        }
+        
+        .bank-account-number::after {
+            content: 'Click to copy';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .bank-account-number:hover::after {
+            opacity: 1;
+        }
+        
+        .copy-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4a9e5b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .copy-notification.show {
+            opacity: 1;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            text-align: center;
+            border-radius: 4px;
+            margin: 8px 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .upload-area:hover {
+            border-color: #4a9e5b; /* Fresh green color */
+        }
+        
+        .upload-area i {
+            font-size: 36px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        
+        .upload-area p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .file-name {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        /* Order confirmation styles */
+        .order-confirmation {
+            text-align: center;
+            padding: 30px 15px;
+            background-color: white;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .order-confirmation i {
+            font-size: 50px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .order-confirmation h1 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .order-confirmation p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .order-details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px auto;
+            max-width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        .order-details h3 {
+            margin-bottom: 12px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .order-details-row {
+            display: flex;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .order-details-label {
+            font-weight: bold;
+            width: 120px;
+        }
+        
+        /* Pending review styles */
+        .pending-review {
+            text-align: center;
+            padding: 30px 15px;
+            background-color: white;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .pending-review i {
+            font-size: 50px;
+            color: #FFC107;
+            margin-bottom: 15px;
+        }
+        
+        .pending-review h1 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .pending-review p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        /* Google Maps Styles */
+        .location-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .location-section h2 {
+            margin-bottom: 15px;
+            color: #4a9e5b;
+        }
+        
+        .map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .location-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .location-details {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .location-details h3 {
+            margin-bottom: 10px;
+            color: #4a9e5b;
+        }
+        
+        .location-details p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .location-details i {
+            margin-right: 10px;
+            color: #4a9e5b;
+            width: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a9e5b; /* Fresh green color */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #3a7d48; /* Darker green */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #f8a31c; /* Orange accent color */
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5940c; /* Darker orange */
+        }
+        
+        .categories, .featured-products, .product-listing {
+            margin: 25px 0;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: #333;
+            padding: 0 5px;
+        }
+        
+        .category-grid, .product-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 10px;
+            padding: 0 5px;
+        }
+        
+        .category-item, .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .category-item:hover, .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-item img, .product-card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+        
+        .category-item h3, .product-card h3 {
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .price {
+            padding: 0 10px 10px;
+        }
+        
+        .current-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4a9e5b; /* Fresh green color */
+        }
+        
+        .original-price {
+            font-size: 12px;
+            text-decoration: line-through;
+            color: #999;
+            margin-left: 5px;
+        }
+        
+        .product-actions {
+            padding: 0 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .product-filters {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .product-filters form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .product-filters input, .product-filters select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        .product-detail {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .product-image {
+            padding: 15px;
+        }
+        
+        .product-image img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-info h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            color: #4a9e5b; /* Fresh green color */
+            margin: 10px 0;
+        }
+        
+        .product-description {
+            margin: 15px 0;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .nutrition-facts {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .nutrition-facts h3 {
+            margin-bottom: 10px;
+            color: #4a9e5b;
+        }
+        
+        .nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .quantity-selector {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-selector input {
+            width: 60px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        footer {
+            background-color: #1a311e;
+            color: white;
+            padding: 25px 0;
+            margin-top: 25px;
+        }
+        
+        .footer-sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-section ul li a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .footer-section ul li a:hover {
+            color: #f8a31c; /* Orange accent color */
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 18px;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #2d4b32;
+            font-size: 14px;
+        }
+        
+        .developer-credit {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .developer-credit a {
+            color: #f8a31c;
+            text-decoration: none;
+        }
+        
+        .developer-credit a:hover {
+            text-decoration: underline;
+        }
+        
+        .cart-items {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .cart-item {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .cart-item-price {
+            font-weight: bold;
+            color: #4a9e5b; /* Fresh green color */
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .cart-item-quantity button {
+            width: 25px;
+            height: 25px;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .cart-item-quantity input {
+            width: 40px;
+            height: 25px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+        
+        .cart-summary {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .summary-total {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        /* Checkout page styles */
+        .checkout-columns {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .checkout-columns > div {
+            width: 100%;
+        }
+        
+        /* Shipping form styles - SIMPLIFIED */
+        #shippingForm div {
+            margin-bottom: 12px;
+        }
+        
+        #shippingForm label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        #shippingForm input, 
+        #shippingForm select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* Karaoke and Reservation Styles - IMPROVED */
+        .booking-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .booking-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .booking-option {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .booking-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .booking-option.karaoke::before {
+            background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80');
+        }
+        
+        .booking-option.small-party::before {
+            background-image: url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80');
+        }
+        
+        .booking-option.office-gathering::before {
+            background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80');
+        }
+        
+        .booking-option.private-event::before {
+            background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1769&q=80');
+        }
+        
+        .booking-option.bbq::before {
+            background-image: url('https://images.unsplash.com/photo-1551615593-ef5fe247e8f7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1800&q=80');
+        }
+        
+        .booking-option > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .booking-option:hover {
+            border-color: #4a9e5b;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        
+        .booking-option.selected {
+            border-color: #4a9e5b;
+            background-color: #f0f9f1;
+        }
+        
+        .booking-option i {
+            font-size: 32px;
+            color: #4a9e5b;
+            margin-bottom: 10px;
+        }
+        
+        .booking-form {
+            margin-top: 25px;
+            display: none;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .booking-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4a9e5b;
+            outline: none;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .booking-summary {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .booking-summary h3 {
+            margin-bottom: 15px;
+            color: #4a9e5b;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        /* Order status tracking */
+        .order-status {
+            margin: 15px 0;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+        
+        .status-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        
+        .status-icon.active {
+            background-color: #4a9e5b;
+            color: white;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .status-tracker-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .status-tracker-form input {
+            flex: 1;
+        }
+        
+        /* NEW STYLES FOR CATEGORIES AND PRODUCTS */
+        .category-item {
+            position: relative;
+            text-align: center;
+        }
+        
+        .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .category-item:hover .category-overlay {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        .category-title {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        
+        .product-card {
+            position: relative;
+        }
+        
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .product-card:hover .product-overlay {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        .product-actions-overlay {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .catalog-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .catalog-menu.active {
+            right: 0;
+        }
+        
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .catalog-header h4 {
+            color: #4a9e5b;
+            font-size: 20px;
+        }
+        
+        .close-catalog {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .catalog-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .catalog-list li {
+            margin-bottom: 10px;
+        }
+        
+        .catalog-list li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .catalog-list li a:hover {
+            background-color: #f0f9f1;
+            color: #4a9e5b;
+        }
+        
+        .catalog-list li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .catalog-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .catalog-btn:hover {
+            color: #4a9e5b;
+        }
+        
+        /* Points System Styles */
+        .points-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .points-balance {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a9e5b;
+            margin-bottom: 15px;
+        }
+        
+        .points-history {
+            margin-top: 15px;
+        }
+        
+        .points-history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .points-history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .redeem-section {
+            margin-top: 20px;
+        }
+        
+        .redeem-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .redeem-option {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .redeem-option:hover {
+            border-color: #4a9e5b;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .redeem-option.selected {
+            border-color: #4a9e5b;
+            background-color: #f0f9f1;
+        }
+        
+        .redeem-option h4 {
+            margin-bottom: 10px;
+            color: #4a9e5b;
+        }
+        
+        .redeem-option .points-cost {
+            font-weight: bold;
+            color: #f8a31c;
+        }
+        
+        /* Product Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        
+        .modal.active {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 20px auto;
+            border-radius: 8px;
+            max-width: 800px;
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 768px) {
+            .container {
+                width: 90%;
+                max-width: 1200px;
+                padding: 0 15px;
+            }
+            
+            .top-bar {
+                flex-direction: row;
+                align-items: center;
+                padding: 15px 0;
+            }
+            
+            .logo {
+                text-align: center;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .user-actions {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                margin-top: 0;
+            }
+            
+            .category-grid, .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+            
+            .product-detail {
+                flex-direction: row;
+            }
+            
+            .footer-sections {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .checkout-columns {
+                flex-direction: row;
+            }
+            
+            .product-actions {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .banner {
+                height: 400px;
+            }
+            
+            .banner-text h2 {
+                font-size: 36px;
+            }
+            
+            .banner-text p {
+                font-size: 20px;
+            }
+            
+            .booking-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .redeem-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .location-info {
+                flex-direction: row;
+            }
+        }
+        
+        /* Mobile landscape and tablet portrait */
+        @media (min-width: 480px) and (max-width: 767px) {
+            .banner {
+                height: 250px;
+            }
+            
+            .banner-text h2 {
+                font-size: 24px;
+            }
+            
+            .banner-text p {
+                font-size: 16px;
+            }
+            
+            .booking-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .redeem-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 767px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .top-bar {
+                padding-top: 50px;
+            }
+            
+            .category-grid, .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .booking-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .redeem-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .location-info {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+        }
+        
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .category-grid, .product-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .banner {
+                height: 200px;
+            }
+            
+            .banner-text h2 {
+                font-size: 20px;
+            }
+            
+            .banner-text p {
+                font-size: 14px;
+            }
+            
+            .booking-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-option {
+                height: 150px;
+            }
+            
+            .redeem-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">arOwipOkqs<span></span></div>
+            <p class="splash-tagline">Raw, Organic, and of course, Fresh!</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Notification -->
+    <div class="copy-notification" id="copyNotification">
+        Account number copied to clipboard!
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content" id="modalContent">
+            <button class="close-modal" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <!-- Modal content will be loaded here -->
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <!-- Mobile menu button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="top-bar">
+                <div class="logo">
+                    <h4>Scorpiora</h4>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="#" id="cartLink"><i class="fas fa-shopping-cart"></i> 
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                    <a href="#" id="pointsLink"><i class="fas fa-coins"></i></a>
+                    <a href="admin.html" id="adminLink"><i class="#"></i></a>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="products">Our Products</a></li>
+                    <li><button class="catalog-btn" id="catalogBtn">Catalog</button></li>
+                    <li><a href="#" class="nav-link" data-page="booking">Bookings</a></li>
+                    <li><a href="#" class="nav-link" data-page="order-status">Order Status</a></li>
+                    <li><a href="#" class="nav-link" data-page="points">Redeem Points</a></li>
+                    <li><a href="#" class="nav-link" data-page="location">Location</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Catalog Menu -->
+    <div class="catalog-menu" id="catalogMenu">
+        <div class="catalog-header">
+            <h4>Product Catalog</h4>
+            <button class="close-catalog" id="closeCatalog">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="catalog-list" id="catalogList">
+            <!-- Categories will be loaded dynamically -->
+        </ul>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-header">
+            <h4>Scorpiora</h4>
+            <button class="close-menu" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul>
+            <li><a href="#" class="mobile-nav-link" data-page="home"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="products"><i class="fas fa-glass"></i> Our Products</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="booking"><i class="fas fa-calendar-alt"></i> Bookings</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="order-status"><i class="fas fa-truck"></i> Order Status</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="points"><i class="fas fa-coins"></i> Redeem Points</a></li>
+            <li><a href="#" class="mobile-nav-link" data-page="location"><i class="fas fa-map-marker-alt"></i> Location</a></li>
+            <!-- Dynamic categories will be added here -->
+            <div id="mobileDynamicCategories"></div>
+        </ul>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay" id="overlay"></div>
+
+    <main class="container" id="mainContent">
+        <!-- Content will be dynamically loaded here -->
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-sections">
+               
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/scorpiora_cs?igsh=MXBjem9zN3diaXF0ag=="><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; <span id="currentYear"></span> Scorpiora. All rights reserved.</p>
+                <div class="developer-credit">
+                    Developed by <a href="#" target="_blank">sym.codermv</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBaH7VIeztJDWeHeeiMXgL1KiNA1nhGMCY",
+            authDomain: "fresh-8dc18.firebaseapp.com",
+            projectId: "fresh-8dc18",
+            storageBucket: "fresh-8dc18.firebasestorage.app",
+            messagingSenderId: "202478209202",
+            appId: "1:202478209202:web:4d692f1c5cfb1178db21ab",
+            measurementId: "G-8KF5VX8KQ3"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // App state
+        let state = {
+            cart: JSON.parse(localStorage.getItem('cart')) || {},
+            currentPage: 'home',
+            currentCategory: null,
+            currentSearch: '',
+            currentProduct: null,
+            orderDetails: null,
+            paymentMethod: null,
+            uploadedFile: null,
+            products: [],
+            smoothies: [],
+            discountPercentage: 0,
+            categories: ["Fresh Juices", "Smoothies", "Detox Cleanses", "Boosters", "Wellness Shots"],
+            catalogName: "Fresh Juice Bar",
+            freeShippingThreshold: 100, // Free shipping threshold in MVR
+            shippingCost: 5.99, // Standard shipping cost
+            bookingType: null,
+            bookingDetails: null,
+            pointsProducts: [
+                {
+                    id: 'points-100',
+                    name: '100 Points Reward',
+                    points: 100,
+                    description: 'Get any product under MVR 100 for free',
+                    image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                    maxValue: 100
+                },
+                {
+                    id: 'points-270',
+                    name: '270 Points Reward',
+                    points: 270,
+                    description: 'Get any product under MVR 270 for free',
+                    image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                    maxValue: 270
+                },
+                {
+                    id: 'points-500',
+                    name: '500 Points Reward',
+                    points: 500,
+                    description: 'Get any product under MVR 500 for free',
+                    image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                    maxValue: 500
+                },
+                {
+                    id: 'points-karaoke',
+                    name: 'Karaoke Session',
+                    points: 800,
+                    description: 'Free 2-hour karaoke session',
+                    image: 'https://cdn-icons-png.flaticon.com/512/2990/2990682.png',
+                    bookingType: 'karaoke'
+                },
+                {
+                    id: 'points-party',
+                    name: 'Small Party Package',
+                    points: 1500,
+                    description: 'Free small party package for up to 10 people',
+                    image: 'https://cdn-icons-png.flaticon.com/512/3296/3296414.png',
+                    bookingType: 'small-party'
+                }
+            ],
+            customerPoints: 0,
+            customerPhone: ''
+        };
+
+        // DOM elements
+        const mainContent = document.getElementById('mainContent');
+        const cartCount = document.getElementById('cartCount');
+        const cartLink = document.getElementById('cartLink');
+        const pointsLink = document.getElementById('pointsLink');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        const currentYear = document.getElementById('currentYear');
+        const splashScreen = document.getElementById('splash-screen');
+        const adminLink = document.getElementById('adminLink');
+        const mobileDynamicCategories = document.getElementById('mobileDynamicCategories');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const closeMenu = document.getElementById('closeMenu');
+        const overlay = document.getElementById('overlay');
+        const catalogBtn = document.getElementById('catalogBtn');
+        const catalogMenu = document.getElementById('catalogMenu');
+        const closeCatalog = document.getElementById('closeCatalog');
+        const catalogList = document.getElementById('catalogList');
+        const productModal = document.getElementById('productModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const copyNotification = document.getElementById('copyNotification');
+
+        // Initialize the app
+        function init() {
+            // Set current year in footer
+            currentYear.textContent = new Date().getFullYear();
+
+            // Hide splash screen after 3 seconds
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    loadCatalogName();
+                    loadCategories();
+                    loadProducts();
+                    loadSmoothies();
+                    loadDiscount();
+                    loadShippingSettings();
+                }, 500);
+            }, 3000);
+
+            // Add event listeners for navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.dataset.page;
+                    const category = link.dataset.category;
+                    
+                    if (category) {
+                        state.currentCategory = category;
+                        state.currentSearch = '';
+                    }
+                    
+                    loadPage(page);
+                });
+            });
+
+            // Add event listeners for mobile navigation
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.dataset.page;
+                    const category = link.dataset.category;
+                    
+                    if (category) {
+                        state.currentCategory = category;
+                        state.currentSearch = '';
+                    }
+                    
+                    loadPage(page);
+                    closeMobileMenu();
+                });
+            });
+
+            cartLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadPage('cart');
+                closeMobileMenu();
+            });
+
+            pointsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadPage('points');
+                closeMobileMenu();
+            });
+
+            adminLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Admin link now goes to admin.html
+            });
+
+            // Mobile menu functionality
+            mobileMenuBtn.addEventListener('click', openMobileMenu);
+            closeMenu.addEventListener('click', closeMobileMenu);
+            overlay.addEventListener('click', closeMobileMenu);
+
+            // Catalog menu functionality
+            catalogBtn.addEventListener('click', openCatalogMenu);
+            closeCatalog.addEventListener('click', closeCatalogMenu);
+            overlay.addEventListener('click', closeCatalogMenu);
+            
+            // Modal functionality
+            closeModal.addEventListener('click', closeProductModal);
+            productModal.addEventListener('click', (e) => {
+                if (e.target === productModal) {
+                    closeProductModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeProductModal();
+                }
+            });
+            
+            // Initialize cart count
+            updateCartCount();
+        }
+
+        // Open product modal
+        function openProductModal(content) {
+            modalContent.innerHTML = content;
+            productModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close product modal
+        function closeProductModal() {
+            productModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Open catalog menu
+        function openCatalogMenu() {
+            catalogMenu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close catalog menu
+        function closeCatalogMenu() {
+            catalogMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Open mobile menu
+        function openMobileMenu() {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close mobile menu
+        function closeMobileMenu() {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Load shipping settings from Firebase
+        function loadShippingSettings() {
+            database.ref('shippingSettings').on('value', (snapshot) => {
+                const settings = snapshot.val();
+                if (settings) {
+                    state.freeShippingThreshold = settings.freeShippingThreshold || 100;
+                    state.shippingCost = settings.shippingCost || 5.99;
+                }
+            });
+        }
+
+        // Calculate shipping cost based on order total
+        function calculateShipping(subtotal) {
+            if (subtotal >= state.freeShippingThreshold) {
+                return 0;
+            }
+            return state.shippingCost;
+        }
+
+        // Load catalog name from Firebase
+        function loadCatalogName() {
+            database.ref('catalogName').on('value', (snapshot) => {
+                const name = snapshot.val();
+                if (name) {
+                    state.catalogName = name;
+                }
+            });
+        }
+
+        // Load categories from Firebase
+        function loadCategories() {
+            database.ref('categories').on('value', (snapshot) => {
+                const categoriesData = snapshot.val();
+                if (categoriesData) {
+                    state.categories = Object.values(categoriesData);
+                    renderCategories();
+                    renderCatalogMenu();
+                }
+            });
+        }
+
+        // Render categories in navigation
+        function renderCategories() {
+            if (state.categories.length > 0) {
+                let mobileCategoriesHTML = '';
+                
+                state.categories.forEach(category => {
+                    mobileCategoriesHTML += `
+                        <li><a href="#" class="mobile-nav-link" data-page="products" data-category="${category}">
+                            <i class="fas fa-${getCategoryIcon(category)}"></i> ${category}
+                        </a></li>
+                    `;
+                });
+                
+                mobileDynamicCategories.innerHTML = mobileCategoriesHTML;
+                
+                // Add event listeners to mobile category links
+                document.querySelectorAll('#mobileDynamicCategories .mobile-nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        state.currentCategory = link.dataset.category;
+                        state.currentSearch = '';
+                        loadPage('products');
+                        closeMobileMenu();
+                    });
+                });
+            }
+        }
+
+        // Render catalog menu
+        function renderCatalogMenu() {
+            if (state.categories.length > 0) {
+                let catalogHTML = '';
+                
+                state.categories.forEach(category => {
+                    catalogHTML += `
+                        <li><a href="#" class="catalog-link" data-page="products" data-category="${category}">
+                            <i class="fas fa-${getCategoryIcon(category)}"></i> ${category}
+                        </a></li>
+                    `;
+                });
+                
+                catalogList.innerHTML = catalogHTML;
+                
+                // Add event listeners to catalog links
+                document.querySelectorAll('.catalog-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        state.currentCategory = link.dataset.category;
+                        state.currentSearch = '';
+                        loadPage('products');
+                        closeCatalogMenu();
+                    });
+                });
+            }
+        }
+
+        // Get appropriate icon for category
+        function getCategoryIcon(category) {
+            const categoryIcons = {
+                'Fresh Juices': 'glass',
+                'Smoothies': 'blender',
+                'Detox Cleanses': 'leaf',
+                'Boosters': 'bolt',
+                'Wellness Shots': 'heart'
+            };
+            
+            return categoryIcons[category] || 'tag';
+        }
+
+        // Load smoothies from Firebase
+        function loadSmoothies() {
+            database.ref('smoothies').on('value', (snapshot) => {
+                const smoothiesData = snapshot.val();
+                if (smoothiesData) {
+                    // Convert object to array
+                    state.smoothies = Object.keys(smoothiesData).map(key => {
+                        return { id: key, ...smoothiesData[key] };
+                    });
+                    
+                    // If no smoothies in Firebase, add some sample smoothies
+                    if (state.smoothies.length === 0) {
+                        addSampleSmoothies();
+                    }
+                } else {
+                    // If no smoothies node exists, add sample smoothies
+                    addSampleSmoothies();
+                }
+            });
+        }
+
+        // Add sample smoothies to Firebase
+        function addSampleSmoothies() {
+            const sampleSmoothies = [
+                {
+                    name: 'Green Detox Smoothie',
+                    price: 139,
+                    original_price: 159,
+                    description: 'Packed with nutrient-rich greens and fruits to help cleanse your system and boost your energy',
+                    image: 'https://healthylivingpc.com/wp-content/uploads/2024/06/Green-Detox-Smoothie-500x375.jpg',
+                    category: 'Smoothies',
+                    featured: true,
+                    nutrition: [
+                        {name: 'Calories', value: '180'},
+                        {name: 'Protein', value: '5g'},
+                        {name: 'Carbs', value: '38g'},
+                        {name: 'Fat', value: '1g'}
+                    ],
+                    ingredients: ['Kale', 'Spinach', 'Pineapple', 'Banana', 'Ginger']
+                },
+                {
+                    name: 'Tropical Paradise',
+                    price: 129,
+                    original_price: 149,
+                    description: 'Escape to a Tropical Paradise with this delicious blend of mango, pineapple, coconut milk, and passion fruit',
+                    image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    category: 'Smoothies',
+                    featured: true,
+                    nutrition: [
+                        {name: 'Calories', value: '240'},
+                        {name: 'Protein', value: '3g'},
+                        {name: 'Carbs', value: '42g'},
+                        {name: 'Fat', value: '8g'}
+                    ],
+                    ingredients: ['Mango', 'Pineapple', 'Coconut Milk', 'Passion Fruit']
+                }
+            ];
+
+            // Add each smoothie to Firebase
+            sampleSmoothies.forEach(smoothie => {
+                database.ref('smoothies').push(smoothie);
+            });
+        }
+
+        // Load products from Firebase
+        function loadProducts() {
+            database.ref('products').on('value', (snapshot) => {
+                const productsData = snapshot.val();
+                if (productsData) {
+                    // Convert object to array
+                    state.products = Object.keys(productsData).map(key => {
+                        return { id: key, ...productsData[key] };
+                    });
+                    
+                    // If no products in Firebase, add some sample products
+                    if (state.products.length === 0) {
+                        addSampleProducts();
+                    } else {
+                        if (state.currentPage) {
+                            loadPage(state.currentPage);
+                        }
+                    }
+                } else {
+                    // If no products node exists, add sample products
+                    addSampleProducts();
+                }
+            });
+        }
+
+        // Add sample products to Firebase
+        function addSampleProducts() {
+            const sampleProducts = [
+                {
+                    name: 'Citrus Blast',
+                    price: 119,
+                    original_price: 129,
+                    image: 'https://i.pinimg.com/736x/fd/0b/34/fd0b347a94a16150a88f9f457969cf34.jpg',
+                    description: 'Refreshing blend of orange, grapefruit, and lemon with a hint of turmeric',
+                    category: 'Fresh Juices',
+                    featured: true,
+                    nutrition: [
+                        {name: 'Calories', value: '120'},
+                        {name: 'Protein', value: '2g'},
+                        {name: 'Carbs', value: '28g'},
+                        {name: 'Fat', value: '0g'}
+                    ],
+                    ingredients: ['Orange', 'Grapefruit', 'Lemon', 'Turmeric']
+                },
+                {
+                    name: 'Berry Antioxidant',
+                    price: 149,
+                    original_price: 169,
+                    image: 'https://images.unsplash.com/photo-1623844889320-6f04dacf3cc4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    description: 'Packed with mixed berries, banana, Greek yogurt, and honey',
+                    category: 'Smoothies',
+                    featured: true,
+                    nutrition: [
+                        {name: 'Calories', value: '280'},
+                        {name: 'Protein', value: '12g'},
+                        {name: 'Carbs', value: '48g'},
+                        {name: 'Fat', value: '5g'}
+                    ],
+                    ingredients: ['Mixed Berries', 'Banana', 'Greek Yogurt', 'Honey']
+                },
+                {
+                    name: 'Ginger Shot',
+                    price: 49,
+                    original_price: 59,
+                    image: 'https://images.unsplash.com/photo-1598034791475-787a8c4a61a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    description: 'Powerful immune-boosting shot with fresh ginger, lemon, and a hint of turmeric',
+                    category: 'Wellness Shots',
+                    featured: false,
+                    nutrition: [
+                        {name: 'Calories', value: '15'},
+                        {name: 'Protein', value: '0g'},
+                        {name: 'Carbs', value: '3g'},
+                        {name: 'Fat', value: '0g'}
+                    ],
+                    ingredients: ['Ginger', 'Lemon', 'Turmeric']
+                },
+                {
+                    name: 'Green Cleanse',
+                    price: 159,
+                    original_price: 179,
+                    image: 'https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    description: 'Deep cleansing juice with kale, cucumber, celery, green apple, and lemon',
+                    category: 'Detox Cleanses',
+                    featured: false,
+                    nutrition: [
+                        {name: 'Calories', value: '110'},
+                        {name: 'Protein', value: '3g'},
+                        {name: 'Carbs', value: '25g'},
+                        {name: 'Fat', value: '1g'}
+                    ],
+                    ingredients: ['Kale', 'Cucumber', 'Celery', 'Green Apple', 'Lemon']
+                },
+                {
+                    name: 'Protein Power',
+                    price: 159,
+                    original_price: 179,
+                    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwa90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    description: 'Fuel your body with banana, peanut butter, protein powder, and almond milk',
+                    category: 'Smoothies',
+                    featured: false,
+                    nutrition: [
+                        {name: 'Calories', value: '380'},
+                        {name: 'Protein', value: '25g'},
+                        {name: 'Carbs', value: '35g'},
+                        {name: 'Fat', value: '16g'}
+                    ],
+                    ingredients: ['Banana', 'Peanut Butter', 'Protein Powder', 'Almond Milk']
+                },
+                {
+                    name: 'Immunity Booster',
+                    price: 89,
+                    original_price: 99,
+                   image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    description: 'Vitamin C packed shot with orange, lemon, ginger, and echinacea',
+                    category: 'Boosters',
+                    featured: false,
+                    nutrition: [
+                        {name: 'Calories', value: '45'},
+                        {name: 'Protein', value: '1g'},
+                        {name: 'Carbs', value: '10g'},
+                        {name: 'Fat', value: '0g'}
+                    ],
+                    ingredients: ['Orange', 'Lemon', 'Ginger', 'Echinacea']
+                }
+            ];
+
+            // Add each product to Firebase
+            sampleProducts.forEach(product => {
+                database.ref('products').push(product);
+            });
+        }
+
+        // Load discount percentage from Firebase
+        function loadDiscount() {
+            database.ref('discount').on('value', (snapshot) => {
+                const discountData = snapshot.val();
+                state.discountPercentage = discountData?.percentage || 0;
+                
+                if (state.currentPage === 'home') {
+                    loadPage('home');
+                }
+            });
+        }
+
+        // Load a page based on state
+        function loadPage(page) {
+            state.currentPage = page;
+            
+            switch(page) {
+                case 'home':
+                    renderHomePage();
+                    break;
+                case 'products':
+                    renderProductsPage();
+                    break;
+                case 'product':
+                    renderProductDetailPage();
+                    break;
+                case 'smoothies':
+                    renderSmoothiesPage();
+                    break;
+                case 'smoothie-detail':
+                    renderSmoothieDetailPage();
+                    break;
+                case 'cart':
+                    renderCartPage();
+                    break;
+                case 'checkout':
+                    renderCheckoutPage();
+                    break;
+                case 'booking':
+                    renderBookingPage();
+                    break;
+                case 'order-status':
+                    renderOrderStatusPage();
+                    break;
+                case 'points':
+                    renderPointsPage();
+                    break;
+                case 'location':
+                    renderLocationPage();
+                    break;
+                case 'pending-review':
+                    renderPendingReviewPage();
+                    break;
+                case 'order-confirmation':
+                    renderOrderConfirmationPage();
+                    break;
+                default:
+                    renderHomePage();
+            }
+            
+            // Update active nav link
+            updateActiveNavLink();
+            
+            // Scroll to top when page changes
+            window.scrollTo(0, 0);
+            
+            // Close mobile menu if open
+            closeMobileMenu();
+        }
+
+        // Apply discount to price
+        function applyDiscount(price) {
+            if (state.discountPercentage > 0) {
+                return price * (1 - state.discountPercentage / 100);
+            }
+            return price;
+        }
+
+        // Render home page with enhanced banner slideshow
+        function renderHomePage() {
+            const featuredProducts = state.products.filter(product => product.featured);
+            
+            mainContent.innerHTML = `
+                <section class="banner">
+                    <div class="slideshow">
+                        <!-- Slide 1 -->
+                        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1613478223719-2ab802602423?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80')">
+                            <div class="banner-content">
+                                <div class="banner-text">
+                                    <h2>Fresh Juice Bar!</h2>
+                                    <p>Up to ${state.discountPercentage}% off selected items</p>
+                                    <a href="#" class="btn" id="saleBtn">Shop Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 2 -->
+                        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80')">
+                            <div class="banner-content">
+                                <div class="banner-text">
+                                    <h2>New Arrivals</h2>
+                                    <p>Discover our latest juices and smoothies</p>
+                                    <a href="#" class="btn" id="newArrivalsBtn">Explore</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 3 -->
+                        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1600353068440-6361ef3a86e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80')">
+                            <div class="banner-content">
+                                <div class="banner-text">
+                                    <h2>Free Delivery</h2>
+                                    <p>On all orders over MVR${state.freeShippingThreshold}</p>
+                                    <a href="#" class="btn" id="shippingBtn">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="categories">
+                    <h2>Shop by Category</h2>
+                    <div class="category-grid">
+                        ${state.categories.length > 0 ? 
+                            state.categories.map(category => `
+                                <div class="category-item" data-page="products" data-category="${category}">
+                                    <img src="${getCategoryImage(category)}" alt="${category}">
+                                    <div class="category-overlay">
+                                        <div class="category-title">${category}</div>
+                                    </div>
+                                    <h3>${category}</h3>
+                                </div>
+                            `).join('') :
+                            '<p>No categories available</p>'
+                        }
+                    </div>
+                </section>
+
+                <section class="featured-products">
+                    <h2>Featured Products</h2>
+                    <div class="product-grid">
+                        ${featuredProducts.length > 0 ? 
+                            featuredProducts.map(product => {
+                                const discountedPrice = applyDiscount(product.price);
+                                return `
+                                <div class="product-card" data-id="${product.id}">
+                                    <img src="${product.image}" alt="${product.name}">
+                                    <div class="product-overlay">
+                                        <div class="product-actions-overlay">
+                                            <button class="btn add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                    <h3>${product.name}</h3>
+                                    <div class="price">
+                                        <span class="current-price">MVR${discountedPrice.toFixed(2)}</span>
+                                        ${state.discountPercentage > 0 ? 
+                                            `<span class="original-price">MVR${product.price.toFixed(2)}</span>` : ''}
+                                    </div>
+                                </div>
+                                `;
+                            }).join('') :
+                            '<p>No featured products available.</p>'
+                        }
+                    </div>
+                </section>
+            `;
+            
+            // Initialize slideshow
+            initSlideshow();
+            
+            // Add event listeners to dynamically created elements
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    state.currentCategory = item.dataset.category;
+                    state.currentSearch = '';
+                    loadPage('products');
+                });
+            });
+            
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('add-to-cart-btn')) {
+                        const productId = card.dataset.id;
+                        viewProductDetail(productId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = btn.dataset.id;
+                    addToCart(productId);
+                    alert('Product added to cart!');
+                });
+            });
+            
+            document.getElementById('saleBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                state.currentCategory = null;
+                state.currentSearch = '';
+                loadPage('products');
+            });
+            
+            document.getElementById('newArrivalsBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                state.currentCategory = 'Fresh Juices';
+                state.currentSearch = '';
+                loadPage('products');
+            });
+            
+            document.getElementById('shippingBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert(`Free delivery applies to all orders over MVR${state.freeShippingThreshold}. No code needed!`);
+            });
+        }
+
+        // Render smoothies page
+        function renderSmoothiesPage() {
+            mainContent.innerHTML = `
+                <h1>Smoothies</h1>
+                <p style="margin-bottom: 15px;">Browse our selection of delicious and nutritious smoothies</p>
+                
+                <div class="product-grid">
+                    ${state.smoothies.length > 0 ? 
+                        state.smoothies.map(smoothie => {
+                            const discountedPrice = applyDiscount(smoothie.price);
+                            return `
+                            <div class="product-card" data-id="${smoothie.id}">
+                                <img src="${smoothie.image}" alt="${smoothie.name}">
+                                <div class="product-overlay">
+                                    <div class="product-actions-overlay">
+                                        <button class="btn quick-add-btn" data-id="${smoothie.id}">Add to Cart</button>
+                                    </div>
+                                </div>
+                                <h3>${smoothie.name}</h3>
+                                <div class="price">
+                                    <span class="current-price">MVR${discountedPrice.toFixed(2)}</span>
+                                    ${state.discountPercentage > 0 ? 
+                                        `<span class="original-price">MVR${smoothie.price.toFixed(2)}</span>` : ''}
+                                </div>
+                            </div>
+                            `;
+                        }).join('') :
+                        '<p>No smoothies available.</p>'
+                    }
+                </div>
+            `;
+            
+            // Add event listeners
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('quick-add-btn')) {
+                        const smoothieId = card.dataset.id;
+                        viewSmoothieDetail(smoothieId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.quick-add-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const smoothieId = btn.dataset.id;
+                    const smoothie = state.smoothies.find(s => s.id === smoothieId);
+                    if (smoothie) {
+                        addToCart(smoothieId);
+                        alert(`${smoothie.name} added to cart!`);
+                    }
+                });
+            });
+        }
+
+        // View smoothie detail
+        function viewSmoothieDetail(smoothieId) {
+            const smoothie = state.smoothies.find(s => s.id === smoothieId);
+            if (!smoothie) return;
+            
+            state.currentProduct = smoothie;
+            loadPage('smoothie-detail');
+        }
+
+        // Render smoothie detail page
+        function renderSmoothieDetailPage() {
+            if (!state.currentProduct) {
+                loadPage('smoothies');
+                return;
+            }
+            
+            const smoothie = state.currentProduct;
+            const discountedPrice = applyDiscount(smoothie.price);
+            
+            mainContent.innerHTML = `
+                <div class="product-detail">
+                    <div class="product-image">
+                        <img src="${smoothie.image}" alt="${smoothie.name}">
+                    </div>
+                    <div class="product-info">
+                        <h1>${smoothie.name}</h1>
+                        <div class="product-price">
+                            MVR${discountedPrice.toFixed(2)}
+                            ${state.discountPercentage > 0 ? 
+                                `<span class="original-price">MVR${smoothie.price.toFixed(2)}</span>` : ''}
+                        </div>
+                        
+                        <div class="product-description">
+                            <p>${smoothie.description}</p>
+                            
+                            <h3 style="margin-top: 15px;">Ingredients</h3>
+                            <ul>
+                                ${smoothie.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="nutrition-facts">
+                            <h3>Nutrition Facts</h3>
+                            ${smoothie.nutrition.map(item => `
+                                <div class="nutrition-item">
+                                    <span>${item.name}:</span>
+                                    <span>${item.value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <form id="addToCartForm">
+                            <div class="quantity-selector">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1">
+                            </div>
+                            <button type="submit" class="btn">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('addToCartForm')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const quantity = parseInt(document.getElementById('quantity').value) || 1;
+                addToCart(smoothie.id, quantity);
+                alert(`${smoothie.name} has been added to your cart!`);
+            });
+        }
+
+        // Get appropriate image for category
+        function getCategoryImage(category) {
+            // Default placeholder image
+            let image = 'https://via.placeholder.com/300x200?text=' + category;
+            
+            // Map specific categories to their images
+            const categoryImages = {
+                'Fresh Juices': 'https://images.unsplash.com/photo-1613478223719-2ab802602423?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                'Smoothies': 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto-format&fit=crop&w=500&q=60',
+                'Detox Cleanses': 'https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                'Boosters': 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                'Wellness Shots': 'https://images.unsplash.com/photo-1598034791475-787a8c4a61a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60'
+            };
+            
+            if (categoryImages[category]) {
+                image = categoryImages[category];
+            }
+            
+            return image;
+        }
+
+        // Initialize slideshow
+        function initSlideshow() {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+            
+            function nextSlide() {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+            
+            // Change slide every 5 seconds
+            setInterval(nextSlide, 5000);
+        }
+
+        // Render products page
+        function renderProductsPage() {
+            let filteredProducts = [...state.products];
+            
+            if (state.currentCategory) {
+                filteredProducts = filteredProducts.filter(
+                    product => product.category === state.currentCategory
+                );
+            }
+            
+            if (state.currentSearch) {
+                const searchTerm = state.currentSearch.toLowerCase();
+                filteredProducts = filteredProducts.filter(
+                    product => product.name.toLowerCase().includes(searchTerm) || 
+                               (product.description && product.description.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            mainContent.innerHTML = `
+                <h1>${state.currentCategory ? state.currentCategory : 'Our Products'}</h1>
+
+                <div class="product-listing">
+                    <div class="product-grid">
+                        ${filteredProducts.length > 0 ? 
+                            filteredProducts.map(product => {
+                                const discountedPrice = applyDiscount(product.price);
+                                return `
+                                <div class="product-card" data-id="${product.id}">
+                                    <img src="${product.image}" alt="${product.name}">
+                                    <div class="product-overlay">
+                                        <div class="product-actions-overlay">
+                                            <button class="btn add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                    <h3>${product.name}</h3>
+                                    <div class="price">
+                                        <span class="current-price">MVR${discountedPrice.toFixed(2)}</span>
+                                        ${state.discountPercentage > 0 ? 
+                                            `<span class="original-price">MVR${product.price.toFixed(2)}</span>` : ''}
+                                    </div>
+                                </div>
+                                `;
+                            }).join('') :
+                            '<p>No products found matching your criteria.</p>'
+                        }
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('add-to-cart-btn')) {
+                        const productId = card.dataset.id;
+                        viewProductDetail(productId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = btn.dataset.id;
+                    addToCart(productId);
+                    alert('Product added to cart!');
+                });
+            });
+        }
+
+        // View product detail
+        function viewProductDetail(productId) {
+            const product = state.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const discountedPrice = applyDiscount(product.price);
+            
+            const modalHTML = `
+                <div class="product-detail">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <h1>${product.name}</h1>
+                        <div class="product-price">
+                            MVR${discountedPrice.toFixed(2)}
+                            ${state.discountPercentage > 0 ? 
+                                `<span class="original-price">MVR${product.price.toFixed(2)}</span>` : ''}
+                        </div>
+                        <div class="product-description">
+                            <p>${product.description}</p>
+                        </div>
+                        
+                        ${product.ingredients ? `
+                        <div class="nutrition-facts">
+                            <h3>Ingredients</h3>
+                            <ul>
+                                ${product.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        ${product.nutrition ? `
+                        <div class="nutrition-facts">
+                            <h3>Nutrition Facts</h3>
+                            ${product.nutrition.map(item => `
+                                <div class="nutrition-item">
+                                    <span>${item.name}:</span>
+                                    <span>${item.value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                        
+                        <form id="addToCartForm">
+                            <div class="quantity-selector">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1">
+                            </div>
+                            <button type="submit" class="btn">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            openProductModal(modalHTML);
+            
+            document.getElementById('addToCartForm')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const quantity = parseInt(document.getElementById('quantity').value) || 1;
+                addToCart(product.id, quantity);
+                alert(`${product.name} has been added to your cart!`);
+                closeProductModal();
+            });
+        }
+
+        // Render cart page
+        function renderCartPage() {
+            const cartItems = Object.entries(state.cart)
+                .map(([id, quantity]) => {
+                    // Check if it's a smoothie first
+                    const smoothie = state.smoothies.find(s => s.id === id);
+                    if (smoothie) {
+                        return {
+                            product: smoothie,
+                            quantity,
+                            isSmoothie: true
+                        };
+                    }
+                    
+                    // Otherwise check regular products
+                    const product = state.products.find(p => p.id === id);
+                    if (!product) return null;
+                    
+                    return {
+                        product,
+                        quantity,
+                        isSmoothie: false
+                    };
+                })
+                .filter(item => item !== null);
+            
+            const subtotal = cartItems.reduce((sum, item) => 
+                sum + (item.product.price * item.quantity), 0);
+            
+            const shipping = calculateShipping(subtotal);
+            const total = subtotal + shipping;
+            
+            mainContent.innerHTML = `
+                <h1>Your Shopping Cart</h1>
+                <p style="margin-bottom: 15px;">Total items: ${Object.values(state.cart).reduce((a, b) => a + b, 0)}</p>
+                
+                <div class="cart-items">
+                    ${cartItems.length > 0 ? 
+                        cartItems.map(item => `
+                            <div class="cart-item">
+                                <img src="${item.product.image}" 
+                                     alt="${item.product.name}" class="cart-item-image">
+                                <div class="cart-item-details">
+                                    <h3>${item.product.name}</h3>
+                                    <div class="cart-item-price">
+                                        MVR${item.product.price.toFixed(2)} x ${item.quantity}
+                                    </div>
+                                    <div class="cart-item-quantity">
+                                        <button class="decrease-qty" data-id="${item.product.id}">-</button>
+                                        <input type="number" value="${item.quantity}" min="1" class="qty-input" data-id="${item.product.id}">
+                                        <button class="increase-qty" data-id="${item.product.id}">+</button>
+                                    </div>
+                                    <button class="btn remove-from-cart-btn" data-id="${item.product.id}">Remove</button>
+                                </div>
+                                <div>
+                                    MVR${(item.product.price * item.quantity).toFixed(2)}
+                                </div>
+                            </div>
+                        `).join('') :
+                        '<p>Your cart is empty.</p>'
+                    }
+                </div>
+                
+                ${cartItems.length > 0 ? `
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>MVR${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery:</span>
+                        <span>${shipping === 0 ? 'FREE' : `MVR${shipping.toFixed(2)}`}</span>
+                    </div>
+                    ${shipping === 0 ? `
+                    <div class="summary-row">
+                        <span style="color: #4CAF50; font-size: 14px;">
+                            <i class="fas fa-check-circle"></i> Free delivery applied!
+                        </span>
+                    </div>
+                    ` : `
+                    <div class="summary-row">
+                        <span style="font-size: 14px;">
+                            Spend MVR${(state.freeShippingThreshold - subtotal).toFixed(2)} more for free delivery
+                        </span>
+                    </div>
+                    `}
+                    <div class="summary-row summary-total">
+                        <span>Total:</span>
+                        <span>MVR${total.toFixed(2)}</span>
+                    </div>
+                    <button class="btn" id="checkoutBtn" style="width: 100%; margin-top: 20px;">Proceed to Checkout</button>
+                </div>
+                ` : ''}
+            `;
+            
+            // Add event listeners
+            document.querySelectorAll('.remove-from-cart-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const productId = btn.dataset.id;
+                    removeFromCart(productId);
+                });
+            });
+            
+            document.querySelectorAll('.decrease-qty').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.id;
+                    const currentQty = state.cart[productId];
+                    if (currentQty > 1) {
+                        updateCartItemQty(productId, currentQty - 1);
+                    } else {
+                        removeFromCart(productId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.increase-qty').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.id;
+                    const currentQty = state.cart[productId];
+                    updateCartItemQty(productId, currentQty + 1);
+                });
+            });
+            
+            document.querySelectorAll('.qty-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const productId = e.target.dataset.id;
+                    const newQty = parseInt(e.target.value) || 1;
+                    updateCartItemQty(productId, newQty);
+                });
+            });
+            
+            document.getElementById('checkoutBtn')?.addEventListener('click', () => {
+                loadPage('checkout');
+            });
+        }
+
+        // Update cart item quantity
+        function updateCartItemQty(productId, quantity) {
+            if (quantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            state.cart[productId] = quantity;
+            saveCart();
+            updateCartCount();
+            renderCartPage();
+        }
+
+        // Render checkout page - SIMPLIFIED FORM
+        function renderCheckoutPage() {
+            const cartItems = Object.entries(state.cart)
+                .map(([id, quantity]) => {
+                    // Check if it's a smoothie first
+                    const smoothie = state.smoothies.find(s => s.id === id);
+                    if (smoothie) {
+                        return {
+                            product: smoothie,
+                            quantity,
+                            isSmoothie: true
+                        };
+                    }
+                    
+                    // Otherwise check regular products
+                    const product = state.products.find(p => p.id === id);
+                    if (!product) return null;
+                    
+                    return {
+                        product,
+                        quantity,
+                        isSmoothie: false
+                    };
+                })
+                .filter(item => item !== null);
+            
+            if (cartItems.length === 0) {
+                loadPage('cart');
+                return;
+            }
+            
+            const subtotal = cartItems.reduce((sum, item) => 
+                sum + (item.product.price * item.quantity), 0);
+            const shipping = calculateShipping(subtotal);
+            const total = subtotal + shipping;
+            
+            // Generate a random order number
+            const orderNumber = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+            
+            // Save order details to state
+            state.orderDetails = {
+                orderNumber,
+                items: cartItems,
+                subtotal,
+                shipping,
+                total,
+                date: new Date().toLocaleDateString(),
+                status: 'pending'
+            };
+            
+            mainContent.innerHTML = `
+                <h1>Checkout</h1>
+                <p style="margin-bottom: 15px;">Total items: ${Object.values(state.cart).reduce((a, b) => a + b, 0)}</p>
+                
+                <div class="checkout-columns">
+                    <div style="background-color: white; padding: 15px; border-radius: 8px;">
+                        <h2>Shipping Information</h2>
+                        <form id="shippingForm">
+                            <div>
+                                <label>Full Name *</label>
+                                <input type="text" id="fullName" required>
+                            </div>
+                            <div>
+                                <label>Address *</label>
+                                <input type="text" id="address" required>
+                            </div>
+                            <div>
+                                <label>Island *</label>
+                                <select id="island" required>
+                                    <option value="">Select Island</option>
+                                    <option>S.Hithadhoo</option>
+                                    <option>S.Maradhoo</option>
+                                    <option>S.MaradhooFeydhoo</option>
+                                    <option>S.Feydhoo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Phone Number *</label>
+                                <input type="tel" id="phone" required>
+                            </div>
+                        </form>
+                        
+                        <h2 style="margin-top: 20px;">Payment Method</h2>
+                        
+                        <div class="payment-method selected" id="bankTransferMethod">
+                            <label>
+                                <input type="radio" name="payment" value="bank_transfer" checked>
+                                Bank Transfer
+                                <img src="image.png" class="payment-logo" alt="Bank Transfer">
+                            </label>
+                            <div class="payment-method-details">
+                                <div style="margin-top: 10px;">
+                                    <div class="bank-info">
+                                       <p><strong>Bank Name:</strong> Bank Of Maldives</p>
+                                        <p><strong>Account Name:</strong> SCORPIORA</p>
+                                        <p><strong>Account Number:</strong> <span class="bank-account-number" id="accountNumber">7770000203219</span></p>
+                                        <p><strong>Reference:</strong> ${orderNumber}</p>
+                                    </div>
+                                    <p style="margin: 10px 0;">Please upload your payment slip after completing the bank transfer.</p>
+                                    
+                                    <div class="upload-area" id="uploadArea">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload payment slip</p>
+                                        <p style="font-size: 12px; color: #666;">(JPEG, PNG or PDF, max 5MB)</p>
+                                        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                                        <div class<input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                                        <div class="file-name" id="fileName"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method" id="cashMethod">
+                            <label>
+                                <input type="radio" name="payment" value="cash">
+                                Cash on Delivery/Pickup
+                                <img src="https://cdn-icons-png.flaticon.com/512/2703/2703983.png" class="payment-logo" alt="Cash on Delivery">
+                            </label>
+                            <div class="payment-method-details">
+                                <p style="margin-top: 10px;">Pay with cash when you receive your order or pick it up from our store.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div style="background-color: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h2>Order Summary</h2>
+                            ${cartItems.map(item => `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                                    <span>${item.product.name} x ${item.quantity}</span>
+                                    <span>MVR${(item.product.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                            
+                            <div style="border-top: 1px solid #eee; margin: 10px 0; padding-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Subtotal:</span>
+                                    <span>MVR${subtotal.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Delivery:</span>
+                                    <span>${shipping === 0 ? 'FREE' : `MVR${shipping.toFixed(2)}`}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px;">
+                                    <span>Total:</span>
+                                    <span>MVR${total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            
+                            <button class="btn" id="placeOrderBtn" style="width: 100%;">Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Set payment method to bank transfer by default
+            state.paymentMethod = 'bank_transfer';
+            
+            // Payment method selection
+            document.querySelectorAll('input[name="payment"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    state.paymentMethod = e.target.value;
+                    
+                    // Update UI based on selection
+                    document.querySelectorAll('.payment-method').forEach(method => {
+                        method.classList.remove('selected');
+                    });
+                    
+                    if (state.paymentMethod === 'bank_transfer') {
+                        document.getElementById('bankTransferMethod').classList.add('selected');
+                    } else if (state.paymentMethod === 'cash') {
+                        document.getElementById('cashMethod').classList.add('selected');
+                    }
+                });
+            });
+            
+            // File upload handling
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+            
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size exceeds 5MB limit');
+                        return;
+                    }
+                    
+                    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Please upload a JPEG, PNG, or PDF file');
+                        return;
+                    }
+                    
+                    // Read the file and convert to base64
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        fileName.textContent = file.name;
+                        state.uploadedFile = event.target.result; // Store base64 string
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Account number copy functionality
+            const accountNumber = document.getElementById('accountNumber');
+            accountNumber.addEventListener('click', () => {
+                navigator.clipboard.writeText(accountNumber.textContent)
+                    .then(() => {
+                        copyNotification.textContent = 'Account number copied to clipboard!';
+                        copyNotification.classList.add('show');
+                        setTimeout(() => {
+                            copyNotification.classList.remove('show');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            });
+            
+            document.getElementById('placeOrderBtn').addEventListener('click', () => {
+                if (!document.getElementById('shippingForm').checkValidity()) {
+                    alert('Please fill out all required shipping information.');
+                    return;
+                }
+                
+                if (state.paymentMethod === 'bank_transfer' && !state.uploadedFile) {
+                    alert('Please upload your payment slip for bank transfer.');
+                    return;
+                }
+                
+                // Save shipping info to order details
+                state.orderDetails.shippingInfo = {
+                    name: document.getElementById('fullName').value,
+                    address: document.getElementById('address').value,
+                    island: document.getElementById('island').value,
+                    phone: document.getElementById('phone').value
+                };
+                
+                state.orderDetails.paymentMethod = state.paymentMethod;
+                if (state.paymentMethod === 'bank_transfer') {
+                    state.orderDetails.paymentSlip = state.uploadedFile; // Store the base64 image
+                }
+                
+                // Save order to Firebase
+                database.ref('orders').push(state.orderDetails)
+                    .then(() => {
+                        // Add points for this order
+                        const phone = document.getElementById('phone').value;
+                        if (phone) {
+                            addPointsForOrder(phone, total);
+                        }
+                        
+                        // Clear cart after successful order
+                        state.cart = {};
+                        saveCart();
+                        updateCartCount();
+                        
+                        if (state.paymentMethod === 'cash') {
+                            loadPage('order-confirmation');
+                        } else {
+                            loadPage('pending-review');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error placing order: ' + error.message);
+                    });
+            });
+        }
+
+        // Add points for an order
+        function addPointsForOrder(phone, orderTotal) {
+            // 1 point for every 10 MVR spent
+            const pointsEarned = Math.floor(orderTotal / 10);
+            
+            // Get current points for this phone number
+            database.ref('customerPoints').orderByChild('phone').equalTo(phone).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        // Update existing customer's points
+                        const customerData = Object.entries(snapshot.val())[0];
+                        const customerId = customerData[0];
+                        const currentPoints = customerData[1].points || 0;
+                        
+                        database.ref('customerPoints/' + customerId).update({
+                            points: currentPoints + pointsEarned,
+                            lastOrder: new Date().toISOString()
+                        });
+                    } else {
+                        // Create new customer points record
+                        database.ref('customerPoints').push({
+                            phone: phone,
+                            points: pointsEarned,
+                            firstOrder: new Date().toISOString(),
+                            lastOrder: new Date().toISOString()
+                        });
+                    }
+                });
+        }
+
+         // Render points page
+        function renderPointsPage() {
+            mainContent.innerHTML = `
+                <div class="points-section">
+                    <h1>Redeem Your Points</h1>
+                    <p style="margin-bottom: 15px;">Earn 1 point for every MVR 10 spent. Use your points for discounts and free items!</p>
+                    
+                    <div class="points-balance" id="pointsBalance">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="tel" id="phoneCheck" placeholder="Enter your phone number" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1;">
+                            <button class="btn" id="checkPointsBtn">Check Points</button>
+                        </div>
+                        <div id="pointsResult"></div>
+                    </div>
+                    
+                    <div class="redeem-section">
+                        <h2>Redeem Your Points</h2>
+                        <p>Select a reward to redeem using your points:</p>
+                        
+                        <div class="redeem-options">
+                            ${state.pointsProducts.map(product => `
+                                <div class="redeem-option" data-id="${product.id}">
+                                    <img src="${product.image}" alt="${product.name}" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px;">
+                                    <h4>${product.name}</h4>
+                                    <p>${product.description}</p>
+                                    <div class="points-cost">${product.points} points</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            
+            // Check points button event
+            document.getElementById('checkPointsBtn').addEventListener('click', () => {
+                const phone = document.getElementById('phoneCheck').value.trim();
+                
+                if (!phone) {
+                    alert('Please enter your phone number');
+                    return;
+                }
+                
+                checkCustomerPoints(phone);
+            });
+            
+            // Redeem option selection
+            document.querySelectorAll('.redeem-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (!state.customerPhone) {
+                        alert('Please check your points balance first');
+                        return;
+                    }
+                    
+                    const productId = option.dataset.id;
+                    const pointsProduct = state.pointsProducts.find(p => p.id === productId);
+                    
+                    if (state.customerPoints < pointsProduct.points) {
+                        alert(`You don't have enough points. You need ${pointsProduct.points} points but only have ${state.customerPoints}.`);
+                        return;
+                    }
+                    
+                    // Handle different redemption types
+                    if (pointsProduct.maxValue) {
+                        // Product redemption
+                        redeemPointsForProduct(pointsProduct);
+                    } else if (pointsProduct.bookingType) {
+                        // Booking redemption
+                        redeemPointsForBooking(pointsProduct);
+                    }
+                });
+            });
+        }
+
+        // Check customer points
+        function checkCustomerPoints(phone) {
+            database.ref('customerPoints').orderByChild('phone').equalTo(phone).once('value')
+                .then(snapshot => {
+                    const pointsResult = document.getElementById('pointsResult');
+                    
+                    if (snapshot.exists()) {
+                        const customerData = Object.values(snapshot.val())[0];
+                        state.customerPoints = customerData.points || 0;
+                        state.customerPhone = phone;
+                        
+                        pointsResult.innerHTML = `
+                            <div style="background-color: #f0f9f1; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                <h3 style="color: #4a9e5b; margin-bottom: 10px;">Points Balance</h3>
+                                <div style="font-size: 24px; font-weight: bold; color: #4a9e5b;">${state.customerPoints} points</div>
+                                <p style="margin-top: 10px; font-size: 14px;">You can redeem your points for rewards below!</p>
+                            </div>
+                        `;
+                    } else {
+                        state.customerPoints = 0;
+                        state.customerPhone = '';
+                        
+                        pointsResult.innerHTML = `
+                            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                <h3 style="color: #856404; margin-bottom: 10px;">No Points Found</h3>
+                                <p>No points found for this phone number. Points are earned when you place orders.</p>
+                                <p style="margin-top: 10px; font-size: 14px;">Earn 1 point for every MVR 10 spent!</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    alert('Error checking points: ' + error.message);
+                });
+        }
+
+        // Redeem points for a product
+        function redeemPointsForProduct(pointsProduct) {
+            // Show available products within the price range
+            const eligibleProducts = [...state.products, ...state.smoothies].filter(
+                product => product.price <= pointsProduct.maxValue
+            );
+            
+            if (eligibleProducts.length === 0) {
+                alert('No products available for redemption at this time.');
+                return;
+            }
+            
+            mainContent.innerHTML += `
+                <div class="points-section">
+                    <h2>Select Product to Redeem</h2>
+                    <p>Your ${pointsProduct.points} points can be used for any product under MVR ${pointsProduct.maxValue}</p>
+                    
+                    <div class="product-grid">
+                        ${eligibleProducts.map(product => `
+                            <div class="product-card">
+                                <img src="${product.image}" alt="${product.name}">
+                                <div class="product-overlay">
+                                    <div class="product-actions-overlay">
+                                        <button class="btn redeem-product-btn" data-id="${product.id}" data-type="${product.hasOwnProperty('ingredients') ? 'smoothie' : 'product'}">Redeem Now</button>
+                                    </div>
+                                </div>
+                                <h3>${product.name}</h3>
+                                <div class="price">
+                                    <span class="current-price">MVR${product.price.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners for redemption
+            document.querySelectorAll('.redeem-product-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const productId = btn.dataset.id;
+                    const productType = btn.dataset.type;
+                    
+                    let product;
+                    if (productType === 'smoothie') {
+                        product = state.smoothies.find(s => s.id === productId);
+                    } else {
+                        product = state.products.find(p => p.id === productId);
+                    }
+                    
+                    if (confirm(`Redeem ${pointsProduct.points} points for ${product.name}?`)) {
+                        // Deduct points
+                        deductPoints(pointsProduct.points);
+                        
+                        // Add to cart
+                        addToCart(productId);
+                        
+                        alert(`Success! ${product.name} has been added to your cart.`);
+                        loadPage('cart');
+                    }
+                });
+            });
+        }
+
+        // Redeem points for a booking
+        function redeemPointsForBooking(pointsProduct) {
+            state.bookingType = pointsProduct.bookingType;
+            loadPage('booking');
+            
+            // Show message that booking will be free
+            setTimeout(() => {
+                alert(`Your ${pointsProduct.bookingType} booking will be free when you complete the booking form.`);
+            }, 1000);
+        }
+
+        // Deduct points from customer
+        function deductPoints(points) {
+            database.ref('customerPoints').orderByChild('phone').equalTo(state.customerPhone).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const customerData = Object.entries(snapshot.val())[0];
+                        const customerId = customerData[0];
+                        const currentPoints = customerData[1].points || 0;
+                        
+                        database.ref('customerPoints/' + customerId).update({
+                            points: currentPoints - points
+                        });
+                        
+                        state.customerPoints = currentPoints - points;
+                    }
+                });
+        }
+
+        // Render booking page with enhanced UI
+        function renderBookingPage() {
+            const isPointsRedemption = state.bookingType && state.customerPoints > 0;
+            
+            mainContent.innerHTML = `
+                <h1>Bookings & Reservations</h1>
+                ${isPointsRedemption ? 
+                    `<div style="background-color: #f0f9f1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <i class="fas fa-gift" style="color: #4a9e5b; margin-right: 10px;"></i>
+                        <strong>Points Redemption:</strong> Your booking will be free using your points!
+                    </div>` : 
+                    ''
+                }
+                <p style="margin-bottom: 15px;">Book our karaoke room or make a reservation for your special event</p>
+                
+                <div class="booking-section">
+                    <h2>Select Booking Type</h2>
+                    <div class="booking-options">
+                        <div class="booking-option karaoke ${state.bookingType === 'karaoke' ? 'selected' : ''}" data-type="karaoke">
+                            <i class="fas fa-microphone"></i>
+                            <h3>Karaoke Booking</h3>
+                            <p>Book our private karaoke room</p>
+                        </div>
+                        <div class="booking-option small-party ${state.bookingType === 'small-party' ? 'selected' : ''}" data-type="small-party">
+                            <i class="fas fa-users"></i>
+                            <h3>Small Party</h3>
+                            <p>Up to 10 people</p>
+                        </div>
+                        <div class="booking-option office-gathering ${state.bookingType === 'office-gathering' ? 'selected' : ''}" data-type="office-gathering">
+                            <i class="fas fa-building"></i>
+                            <h3>Office Gathering</h3>
+                            <p>Team events & meetings</p>
+                        </div>
+                        <div class="booking-option private-event ${state.bookingType === 'private-event' ? 'selected' : ''}" data-type="private-event">
+                            <i class="fas fa-glass-cheers"></i>
+                            <h3>Private Event</h3>
+                            <p>Birthdays, anniversaries</p>
+                        </div>
+                        <div class="booking-option bbq ${state.bookingType === 'bbq' ? 'selected' : ''}" data-type="bbq">
+                            <i class="fas fa-fire"></i>
+                            <h3>BBQ Party</h3>
+                            <p>Outdoor BBQ setup</p>
+                        </div>
+                    </div>
+                    
+                    <div id="karaokeForm" class="booking-form ${state.bookingType === 'karaoke' ? 'active' : ''}">
+                        <h3>Karaoke Booking</h3>
+                        <form id="karaokeBookingForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" id="karaokeName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="karaokePhone" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date *</label>
+                                    <input type="date" id="karaokeDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Time *</label>
+                                    <input type="time" id="karaokeTime" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Duration (hours) *</label>
+                                    <select id="karaokeDuration" required>
+                                        <option value="1">1 hour</option>
+                                        <option value="2">2 hours</option>
+                                        <option value="3">3 hours</option>
+                                        <option value="4">4 hours</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Number of People *</label>
+                                    <input type="number" id="karaokePeople" min="1" max="15" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Special Requests</label>
+                                <textarea id="karaokeRequests" placeholder="Any special song requests or requirements"></textarea>
+                            </div>
+                            <button type="submit" class="btn">Book Now</button>
+                        </form>
+                    </div>
+                    
+                    <div id="eventForm" class="booking-form ${state.bookingType && state.bookingType !== 'karaoke' ? 'active' : ''}">
+                        <h3 id="eventFormTitle">Event Booking</h3>
+                        <form id="eventBookingForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" id="eventName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="eventPhone" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date *</label>
+                                    <input type="date" id="eventDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Time *</label>
+                                    <input type="time" id="eventTime" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Duration (hours) *</label>
+                                    <select id="eventDuration" required>
+                                        <option value="2">2 hours</option>
+                                        <option value="3">3 hours</option>
+                                        <option value="4">4 hours</option>
+                                        <option value="5">5+ hours</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Number of Guests *</label>
+                                    <input type="number" id="eventGuests" min="1" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Event Type</label>
+                                <input type="text" id="eventType" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Special Requirements</label>
+                                <textarea id="eventRequirements" placeholder="Any special requirements for your event"></textarea>
+                            </div>
+                            <button type="submit" class="btn">Book Now</button>
+                        </form>
+                    </div>
+                    
+                    <div id="bookingSummary" class="booking-summary">
+                        <h3>Booking Summary</h3>
+                        <div id="bookingSummaryContent"></div>
+                        <button class="btn" id="confirmBooking">Confirm Booking</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners for booking options
+            document.querySelectorAll('.booking-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.booking-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                    
+                    // Get booking type
+                    state.bookingType = option.dataset.type;
+                    
+                    // Show appropriate form
+                    if (state.bookingType === 'karaoke') {
+                        document.getElementById('karaokeForm').classList.add('active');
+                        document.getElementById('eventForm').classList.remove('active');
+                    } else {
+                        document.getElementById('eventForm').classList.add('active');
+                        document.getElementById('karaokeForm').classList.remove('active');
+                        
+                        // Set event type title
+                        const eventTitles = {
+                            'small-party': 'Small Party Booking',
+                            'office-gathering': 'Office Gathering Booking',
+                            'private-event': 'Private Event Booking',
+                            'bbq': 'BBQ Party Booking'
+                        };
+                        
+                        document.getElementById('eventFormTitle').textContent = eventTitles[state.bookingType];
+                        document.getElementById('eventType').value = option.querySelector('h3').textContent;
+                    }
+                });
+            });
+            
+            // Karaoke form submission
+            document.getElementById('karaokeBookingForm')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const bookingDetails = {
+                    type: 'karaoke',
+                    name: document.getElementById('karaokeName').value,
+                    phone: document.getElementById('karaokePhone').value,
+                    date: document.getElementById('karaokeDate').value,
+                    time: document.getElementById('karaokeTime').value,
+                    duration: document.getElementById('karaokeDuration').value,
+                    people: document.getElementById('karaokePeople').value,
+                    requests: document.getElementById('karaokeRequests').value,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    pointsRedemption: isPointsRedemption
+                };
+                
+                state.bookingDetails = bookingDetails;
+                
+                // Show booking summary
+                document.getElementById('bookingSummaryContent').innerHTML = `
+                    <p><strong>Type:</strong> Karaoke Booking</p>
+                    <p><strong>Name:</strong> ${bookingDetails.name}</p>
+                    <p><strong>Phone:</strong> <a href="tel:${bookingDetails.phone}">${bookingDetails.phone}</a></p>
+                    <p><strong>Date:</strong> ${bookingDetails.date}</p>
+                    <p><strong>Time:</strong> ${bookingDetails.time}</p>
+                    <p><strong>Duration:</strong> ${bookingDetails.duration} hours</p>
+                    <p><strong>Number of People:</strong> ${bookingDetails.people}</p>
+                    ${bookingDetails.requests ? `<p><strong>Special Requests:</strong> ${bookingDetails.requests}</p>` : ''}
+                    ${isPointsRedemption ? `<p style="color: #4a9e5b;"><strong>Payment:</strong> Free (Points Redemption)</p>` : ''}
+                `;
+                
+                document.getElementById('bookingSummary').style.display = 'block';
+            });
+            
+            // Event form submission
+            document.getElementById('eventBookingForm')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const bookingDetails = {
+                    type: state.bookingType,
+                    name: document.getElementById('eventName').value,
+                    phone: document.getElementById('eventPhone').value,
+                    date: document.getElementById('eventDate').value,
+                    time: document.getElementById('eventTime').value,
+                    duration: document.getElementById('eventDuration').value,
+                    guests: document.getElementById('eventGuests').value,
+                    eventType: document.getElementById('eventType').value,
+                    requirements: document.getElementById('eventRequirements').value,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    pointsRedemption: isPointsRedemption
+                };
+                
+                state.bookingDetails = bookingDetails;
+                
+                // Show booking summary
+                document.getElementById('bookingSummaryContent').innerHTML = `
+                    <p><strong>Type:</strong> ${bookingDetails.eventType}</p>
+                    <p><strong>Name:</strong> ${bookingDetails.name}</p>
+                    <p><strong>Phone:</strong> <a href="tel:${bookingDetails.phone}">${bookingDetails.phone}</a></p>
+                    <p><strong>Date:</strong> ${bookingDetails.date}</p>
+                    <p><strong>Time:</strong> ${bookingDetails.time}</p>
+                    <p><strong>Duration:</strong> ${bookingDetails.duration} hours</p>
+                    <p><strong>Number of Guests:</strong> ${bookingDetails.guests}</p>
+                    ${bookingDetails.requirements ? `<p><strong>Special Requirements:</strong> ${bookingDetails.requirements}</p>` : ''}
+                    ${isPointsRedemption ? `<p style="color: #4a9e5b;"><strong>Payment:</strong> Free (Points Redemption)</p>` : ''}
+                `;
+                
+                document.getElementById('bookingSummary').style.display = 'block';
+            });
+            
+            // Confirm booking
+            document.getElementById('confirmBooking')?.addEventListener('click', () => {
+                if (!state.bookingDetails) return;
+                
+                // Generate booking reference
+                const bookingRef = 'BK-' + Math.floor(100000 + Math.random() * 900000);
+                state.bookingDetails.bookingRef = bookingRef;
+                
+                // If points redemption, deduct points
+                if (isPointsRedemption) {
+                    const pointsProduct = state.pointsProducts.find(
+                        p => p.bookingType === state.bookingType
+                    );
+                    
+                    if (pointsProduct) {
+                        deductPoints(pointsProduct.points);
+                    }
+                }
+                
+                // Save to Firebase
+                database.ref('bookings').push(state.bookingDetails)
+                    .then(() => {
+                        alert(`Booking confirmed! Your reference number is: ${bookingRef}`);
+                        loadPage('home');
+                    })
+                    .catch(error => {
+                        alert('Error creating booking: ' + error.message);
+                    });
+            });
+        }
+
+        // Render location page with Google Maps
+        function renderLocationPage() {
+            mainContent.innerHTML = `
+                <div class="location-section">
+                    <h2>Our Location</h2>
+                    <p style="margin-bottom: 15px;">Visit us at our store for the freshest juices and smoothies!</p>
+                    
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1012.6683292569796!2d73.09563745811272!3d-0.6125645494069025!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x24b59fdbf46f56d5%3A0xa326174f7d67ca9f!2sAddu%20City%20Square!5e1!3m2!1sen!2smv!4v1756636690037!5m2!1sen!2smv" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    
+                    <div class="location-info">
+                        <div class="location-details">
+                            <h3>Store Information</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> Hithadhoo, Addu City, Maldives</p>
+                            <p><i class="fas fa-phone"></i> <a href="tel:+9607933305">+960 7933305</a></p>
+                            <p><i class="fas fa-envelope"></i> <a href="mailto:scorpiora.co@gmail.com">scorpiora.co@gmail.com</a></p>
+                            <p><i class="fas fa-clock"></i> Open Daily: 8:00 AM - 10:00 PM</p>
+                            
+                            <h3 style="margin-top: 20px;">Delivery Areas</h3>
+                            <p>We deliver to all islands in Addu Atoll:</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>S. Hithadhoo</li>
+                                <li>S. Maradhoo</li>
+                                <li>S. Maradhoo-Feydhoo</li>
+                                <li>S. Feydhoo</li>
+                                <li>S. Hulhudhoo</li>
+                                <li>S. Meedhoo</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="location-details">
+                            <h3>Get Directions</h3>
+                            <p>Enter your location to get directions to our store:</p>
+                            <div style="margin-top: 15px;">
+                                <input type="text" id="directionsFrom" placeholder="Enter your location" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;">
+                                <button class="btn" id="getDirectionsBtn">Get Directions</button>
+                            </div>
+                            <div id="directionsPanel" style="margin-top: 15px; padding: 15px; background-color: #f9f9f9; border-radius: 4px; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Get directions button event
+            document.getElementById('getDirectionsBtn').addEventListener('click', () => {
+                const from = document.getElementById('directionsFrom').value;
+                if (from) {
+                    window.open(`https://www.google.com/maps/dir/${encodeURIComponent(from)}/Addu+City+Square,+Hithadhoo,+Maldives/`, '_blank');
+                } else {
+                    alert('Please enter your location');
+                }
+            });
+        }
+
+        // Render order status page
+        function renderOrderStatusPage() {
+            mainContent.innerHTML = `
+                <h1>Order Status Tracker</h1>
+                <p style="margin-bottom: 15px;">Enter your order reference number to check the status of your order</p>
+                
+                <div class="order-status">
+                    <div class="status-tracker-form">
+                        <input type="text" id="orderReference" placeholder="Enter your order reference number">
+                        <button class="btn" id="trackOrderBtn">Track Order</button>
+                    </div>
+                    
+                    <div id="orderStatusResult" style="display: none;">
+                        <div class="status-timeline">
+                            <div class="status-step">
+                                <div class="status-icon active" id="statusOrdered">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="status-label">Ordered</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusPreparing">
+                                    <i class="fas fa-blender"></i>
+                                </div>
+                                <div class="status-label">Preparing</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusOnTheWay">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div class="status-label">On the Way</div>
+                            </div>
+                            <div class="status-step">
+                                <div class="status-icon" id="statusDelivered">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="status-label">Delivered</div>
+                            </div>
+                        </div>
+                        
+                        <div id="orderDetails" style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px;"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Track order button event
+            document.getElementById('trackOrderBtn').addEventListener('click', () => {
+                const orderRef = document.getElementById('orderReference').value.trim();
+                
+                if (!orderRef) {
+                    alert('Please enter your order reference number');
+                    return;
+                }
+                
+                trackOrderStatus(orderRef);
+            });
+        }
+
+        // Track order status
+        function trackOrderStatus(orderRef) {
+            database.ref('orders').orderByChild('orderNumber').equalTo(orderRef).once('value')
+                .then(snapshot => {
+                    const orderStatusResult = document.getElementById('orderStatusResult');
+                    const orderDetails = document.getElementById('orderDetails');
+                    
+                    if (snapshot.exists()) {
+                        const orderData = Object.values(snapshot.val())[0];
+                        
+                        // Show order status result
+                        orderStatusResult.style.display = 'block';
+                        
+                        // Update status timeline
+                        updateStatusIcons(orderData.status);
+                        
+                        // Display order details
+                        orderDetails.innerHTML = `
+                            <h3>Order Details: ${orderRef}</h3>
+                            <p><strong>Order Date:</strong> ${orderData.date}</p>
+                            <p><strong>Status:</strong> ${orderData.status}</p>
+                            <p><strong>Total Amount:</strong> MVR${orderData.total.toFixed(2)}</p>
+                            <p><strong>Shipping Address:</strong> ${orderData.shippingInfo.address}, ${orderData.shippingInfo.island}</p>
+                            <p><strong>Contact:</strong> ${orderData.shippingInfo.phone}</p>
+                            
+                            <h4 style="margin-top: 15px;">Items:</h4>
+                            ${orderData.items.map(item => `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>${item.product.name} x ${item.quantity}</span>
+                                    <span>MVR${(item.product.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        `;
+                    } else {
+                        orderStatusResult.style.display = 'block';
+                        orderDetails.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #ff6b6b;"></i>
+                                <h3>Order Not Found</h3>
+                                <p>No order found with reference number: ${orderRef}</p>
+                                <p>Please check your reference number and try again.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    alert('Error tracking order: ' + error.message);
+                });
+        }
+
+        // Update status icons based on order status
+        function updateStatusIcons(status) {
+            // Reset all icons
+            document.getElementById('statusOrdered').classList.remove('active');
+            document.getElementById('statusPreparing').classList.remove('active');
+            document.getElementById('statusOnTheWay').classList.remove('active');
+            document.getElementById('statusDelivered').classList.remove('active');
+            
+            // Activate icons based on status
+            document.getElementById('statusOrdered').classList.add('active');
+            
+            if (status === 'preparing' || status === 'on-the-way' || status === 'delivered') {
+                document.getElementById('statusPreparing').classList.add('active');
+            }
+            
+            if (status === 'on-the-way' || status === 'delivered') {
+                document.getElementById('statusOnTheWay').classList.add('active');
+            }
+            
+            if (status === 'delivered') {
+                document.getElementById('statusDelivered').classList.add('active');
+            }
+        }
+
+        // Render pending review page
+        function renderPendingReviewPage() {
+            if (!state.orderDetails) {
+                loadPage('home');
+                return;
+            }
+            
+            mainContent.innerHTML = `
+                <div class="pending-review">
+                    <i class="fas fa-clock"></i>
+                    <h1>Order Pending Review</h1>
+                    <p>Your order <strong>${state.orderDetails.orderNumber}</strong> has been received and is pending payment verification.</p>
+                    <p>We will process your order once we verify your bank transfer.</p>
+                    <p>You will receive a confirmation email/SMS once your order is approved.</p>
+                    
+                    <div class="order-details">
+                        <h3>Order Summary</h3>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Order Number:</span>
+                            <span>${state.orderDetails.orderNumber}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Order Date:</span>
+                            <span>${state.orderDetails.date}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Total Amount:</span>
+                            <span>MVR${state.orderDetails.total.toFixed(2)}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Payment Method:</span>
+                            <span>Bank Transfer</span>
+                        </div>
+                    </div>
+                    
+                    <a href="#" class="btn" id="backToHomeBtn">Back to Home</a>
+                </div>
+            `;
+            
+            document.getElementById('backToHomeBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                loadPage('home');
+            });
+        }
+
+        // Render order confirmation page
+        function renderOrderConfirmationPage() {
+            if (!state.orderDetails) {
+                loadPage('home');
+                return;
+            }
+            
+            mainContent.innerHTML = `
+                <div class="order-confirmation">
+                    <i class="fas fa-check-circle"></i>
+                    <h1>Order Confirmed!</h1>
+                    <p>Thank you for your order. Your order has been confirmed and will be processed shortly.</p>
+                    
+                    <div class="order-details">
+                        <h3>Order Details</h3>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Order Number:</span>
+                            <span>${state.orderDetails.orderNumber}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Order Date:</span>
+                            <span>${state.orderDetails.date}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Total Amount:</span>
+                            <span>MVR${state.orderDetails.total.toFixed(2)}</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Payment Method:</span>
+                            <span>Cash on Delivery/Pickup</span>
+                        </div>
+                        <div class="order-details-row">
+                            <span class="order-details-label">Estimated Delivery:</span>
+                            <span>30-45 minutes</span>
+                        </div>
+                    </div>
+                    
+                    <p>You will receive an SMS with order tracking details shortly.</p>
+                    
+                    <a href="#" class="btn" id="trackOrderBtnConfirm">Track Your Order</a>
+                    <a href="#" class="btn btn-secondary" id="backToHomeBtnConfirm">Back to Home</a>
+                </div>
+            `;
+            
+            document.getElementById('trackOrderBtnConfirm').addEventListener('click', (e) => {
+                e.preventDefault();
+                state.currentSearch = state.orderDetails.orderNumber;
+                loadPage('order-status');
+            });
+            
+            document.getElementById('backToHomeBtnConfirm').addEventListener('click', (e) => {
+                e.preventDefault();
+                loadPage('home');
+            });
+        }
+
+        // Update active navigation link
+        function updateActiveNavLink() {
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to current page link
+            document.querySelectorAll(`.nav-link[data-page="${state.currentPage}"]`).forEach(link => {
+                link.classList.add('active');
+            });
+            
+            // Update page title
+            const pageTitles = {
+                'home': 'Home',
+                'products': 'Our Products',
+                'product': 'Product Details',
+                'smoothies': 'Smoothies',
+                'smoothie-detail': 'Smoothie Details',
+                'cart': 'Shopping Cart',
+                'checkout': 'Checkout',
+                'booking': 'Bookings',
+                'order-status': 'Order Status',
+                'points': 'Redeem Points',
+                'location': 'Location',
+                'pending-review': 'Order Pending',
+                'order-confirmation': 'Order Confirmed'
+            };
+            
+            document.title = `${pageTitles[state.currentPage] || 'Fresh Juice Bar'} | ${state.catalogName}`;
+        }
+
+        // Add product to cart
+        function addToCart(productId, quantity = 1) {
+            if (state.cart[productId]) {
+                state.cart[productId] += quantity;
+            } else {
+                state.cart[productId] = quantity;
+            }
+            
+            saveCart();
+            updateCartCount();
+        }
+
+        // Remove product from cart
+        function removeFromCart(productId) {
+            delete state.cart[productId];
+            saveCart();
+            updateCartCount();
+            renderCartPage();
+        }
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(state.cart));
+        }
+
+        // Update cart count badge
+        function updateCartCount() {
+            const count = Object.values(state.cart).reduce((a, b) => a + b, 0);
+            cartCount.textContent = count;
+            
+            if (count > 0) {
+                cartCount.style.display = 'flex';
+            } else {
+                cartCount.style.display = 'none';
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
